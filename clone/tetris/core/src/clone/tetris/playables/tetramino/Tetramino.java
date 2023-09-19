@@ -1,45 +1,46 @@
-package clone.tetris.tetramino;
+package clone.tetris.playables.tetramino;
 
 
 import clone.tetris.cup.Cup;
+import clone.tetris.playables.Block;
+import clone.tetris.playables.TetraminoColors;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Tetramino {
-    public enum Type {
+public abstract class Tetramino {
+    protected enum Type {
         Stick,
         Square,
         Z,
         ZReverse,
         Triangle,
         G,
-        GReversed
+        GReverse
     }
 
-    private enum Rotation {
+    protected enum Rotation {
         Upside,
         Clockwise,
         Downside,
         CounterClockwise
     }
 
-    private static final int[][][] rotatingOffsets = {
+    protected static final int[][][] rotatingOffsets = {
             {
                     {12, 1, -10, -21},
                     {-19, -10, -1, 8},
             },
             {
-                    {},
-                    {}
+                    {0, 0, 0, 0},
+                    {0, 0, 0, 0}
             },
             {
-                    {},
-                    {}
+                    {2, -9, 0, -11},
+                    {-20, -11, 0, 9}
             },
             {
-                    {},
-                    {}
+                    {-20, -9, 0, 11},
+                    {-2, -11, 0, -9}
             },
             {
                     {},
@@ -55,51 +56,20 @@ public class Tetramino {
             }
     };
 
-    private final Block[] allBlocks;
-    private final Type type;
-    private Rotation rotation;
-    private final Color color;
+    protected final Block[] allBlocks;
+    protected final Type type;
+    protected Rotation rotation;
+    protected Color color;
 
-    public Tetramino(Type type) {
+    public Tetramino(Type type, Color color) {
         this.type = type;
         allBlocks = new Block[4];
-        switch(this.type) {
-            case Stick:
-                color = TetraminoColors.Cyan;
-                break;
-            case Square:
-                color = TetraminoColors.Yellow;
-                break;
-            case Z:
-                color = TetraminoColors.Red;
-                break;
-            case ZReverse:
-                color = TetraminoColors.Green;
-                break;
-            case Triangle:
-                color = TetraminoColors.Pink;
-                break;
-            case G:
-                color = TetraminoColors.Blue;
-                break;
-            case GReversed:
-                color = TetraminoColors.Orange;
-                break;
-            default:
-                System.out.println("You messed up with tetramino type");
-        }
+        this.color = color;
         rotation = Rotation.Upside;
         CreateBlocks();
     }
 
-    private void CreateBlocks() {
-        if (type == Type.Stick) {
-            allBlocks[0] = new Block(183, color);
-            allBlocks[1] = new Block(184, color);
-            allBlocks[2] = new Block(185, color);
-            allBlocks[3] = new Block(186, color);
-        }
-    }
+    protected abstract void CreateBlocks();
 
     public void Rotate(boolean clockwise) {
         int rotationOffsetIndex;

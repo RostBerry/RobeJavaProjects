@@ -1,9 +1,7 @@
-package clone.tetris.tetramino;
+package clone.tetris.playables;
 
 import clone.tetris.config.Config;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class Block {
