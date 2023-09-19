@@ -9,5 +9,6 @@
         "javafx-sdk-17.0.8/lib/javafx.swing.jar",
         "javafx-sdk-17.0.8/lib/javafx.web.jar",
         "javafx-sdk-17.0.8/lib/javafx-swt.jar"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
 }
