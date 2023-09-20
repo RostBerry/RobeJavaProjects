@@ -26,33 +26,33 @@ public abstract class Tetramino {
     }
 
     protected static final int[][][] rotatingOffsets = {
-            {
+            { //Stick
                     {12, 1, -10, -21},
                     {-19, -10, -1, 8},
             },
-            {
+            { //Square
                     {0, 0, 0, 0},
                     {0, 0, 0, 0}
             },
-            {
+            { //Z
                     {2, -9, 0, -11},
                     {-20, -11, 0, 9}
             },
-            {
+            { //ZReverse
                     {-20, -9, 0, 11},
                     {-2, -11, 0, -9}
             },
-            {
-                    {},
-                    {}
+            { //Triangle
+                    {-9, 11, 0, -11},
+                    {-11, -9, 0, 9}
             },
-            {
-                    {},
-                    {}
+            { //G
+                    {2, 11, 0, -11},
+                    {-20, -9, 0, 9}
             },
-            {
-                    {},
-                    {}
+            { //GReverse
+                    {-20, 11, 0, -11},
+                    {-2, -9, 0, 9}
             }
     };
 
@@ -106,6 +106,24 @@ public abstract class Tetramino {
 
         for(int index = 0; index < 4; index++) {
             allBlocks[index].id += multiply * rotatingOffsets[type.ordinal()][rotationOffsetIndex][index];
+        }
+    }
+
+    public void moveDown() {
+        for(Block block: allBlocks) {
+            block.id -= 10;
+        }
+    }
+
+    public void moveRight() {
+        for(Block block: allBlocks) {
+            block.id += 1;
+        }
+    }
+
+    public void moveLeft() {
+        for(Block block: allBlocks) {
+            block.id -= 1;
         }
     }
 

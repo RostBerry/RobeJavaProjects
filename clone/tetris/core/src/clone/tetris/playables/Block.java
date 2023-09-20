@@ -21,4 +21,12 @@ public class Block {
         shapeRenderer.rect(pos[0], pos[1], size, size);
         shapeRenderer.end();
     }
+
+    public static int getXFromId(int id) {
+        return id % 10;
+    }
+
+    public static int getYFromId(int id) {
+        return id / 10;
+    }
 }

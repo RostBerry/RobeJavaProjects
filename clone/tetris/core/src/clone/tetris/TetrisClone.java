@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.Timer;
 
 import clone.tetris.cup.Cup;
 import clone.tetris.playables.tetramino.*;
@@ -17,8 +18,9 @@ public class TetrisClone extends ApplicationAdapter {
 	private final Color redColor = new Color(1, 0, 0, 1);
 
 	private Cup cup;
-
 	private Tetramino tetramino;
+
+	private Timer.Task timerTask;
 
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
@@ -34,8 +36,17 @@ public class TetrisClone extends ApplicationAdapter {
 
 		cup = new Cup();
 
-		tetramino = new ZReverse();
+		tetramino = new Triangle();
 		tetramino.Rotate(true);
+
+		timerTask = new Timer.Task() {
+			@Override
+			public void run() {
+				tetramino.moveDown();
+			}
+		};
+
+		Timer.schedule(timerTask, 2f, 0.1f);
 	}
 
 	@Override
@@ -56,6 +67,8 @@ public class TetrisClone extends ApplicationAdapter {
 	
 	@Override
 	public void dispose () {
+
 		batch.dispose();
+		shapeRenderer.dispose();
 	}
 }
