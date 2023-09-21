@@ -1,7 +1,9 @@
 package clone.tetris;
 
+import clone.tetris.input.GameInputManager;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,11 +16,10 @@ import clone.tetris.playables.tetramino.*;
 
 public class TetrisClone extends ApplicationAdapter {
 
-	private final Color whiteColor = new Color(1, 1, 1, 1);
-	private final Color redColor = new Color(1, 0, 0, 1);
-
 	private Cup cup;
 	private Tetramino tetramino;
+
+	private GameInputManager gameInputManager;
 
 	private Timer.Task timerTask;
 
@@ -36,8 +37,11 @@ public class TetrisClone extends ApplicationAdapter {
 
 		cup = new Cup();
 
-		tetramino = new Triangle();
-		tetramino.Rotate(true);
+		tetramino = new Stick();
+
+		gameInputManager = new GameInputManager(tetramino);
+		InputMultiplexer multiplexer = new InputMultiplexer(gameInputManager);
+		Gdx.input.setInputProcessor(multiplexer);
 
 		timerTask = new Timer.Task() {
 			@Override
@@ -45,8 +49,6 @@ public class TetrisClone extends ApplicationAdapter {
 				tetramino.moveDown();
 			}
 		};
-
-		Timer.schedule(timerTask, 2f, 0.1f);
 	}
 
 	@Override

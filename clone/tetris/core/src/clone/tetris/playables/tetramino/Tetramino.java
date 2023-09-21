@@ -73,17 +73,19 @@ public abstract class Tetramino {
 
     public void Rotate(boolean clockwise) {
         int rotationOffsetIndex;
-        int multiply = 1;
+        int multiply;
 
         switch (rotation) {
 
             case Upside:
                 rotationOffsetIndex = clockwise? 0: 1;
+                multiply = 1;
                 rotation = clockwise? Rotation.Clockwise: Rotation.CounterClockwise;
                 break;
 
             case Clockwise:
                 rotationOffsetIndex = clockwise? 1: 0;
+                multiply = clockwise? 1: -1;
                 rotation = clockwise? Rotation.Downside: Rotation.Upside;
                 break;
 
@@ -95,12 +97,13 @@ public abstract class Tetramino {
 
             case CounterClockwise:
                 rotationOffsetIndex = clockwise? 1: 0;
-                multiply = -1;
+                multiply = clockwise? -1: 1;
                 rotation = clockwise? Rotation.Upside: Rotation.Downside;
                 break;
 
             default:
                 System.out.println("You messed up with rotation");
+                multiply = 1000;
                 rotationOffsetIndex = -1;
         }
 
@@ -115,15 +118,12 @@ public abstract class Tetramino {
         }
     }
 
-    public void moveRight() {
-        for(Block block: allBlocks) {
-            block.id += 1;
-        }
-    }
-
-    public void moveLeft() {
-        for(Block block: allBlocks) {
-            block.id -= 1;
+    public void move(boolean side) {
+        int offset = side ? 1: -1;
+        if (!isOnEdge(side)) {
+            for(Block block: allBlocks) {
+                block.id += offset;
+            }
         }
     }
 
@@ -131,5 +131,15 @@ public abstract class Tetramino {
         for (Block block: allBlocks) {
             block.draw(shapeRenderer, Cup.IdToPos(block.id));
         }
+    }
+
+    public boolean isOnEdge(boolean side ) { //true = right, false = left
+        int edgeX = side ? 9: 0;
+        for(Block block: allBlocks) {
+            if (Block.getXFromId(block.id) == edgeX) {
+                return true;
+            }
+        }
+        return false;
     }
 }
