@@ -3,7 +3,6 @@ package clone.tetris.playables.tetramino;
 
 import clone.tetris.cup.Cup;
 import clone.tetris.playables.Block;
-import clone.tetris.playables.TetraminoColors;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
@@ -56,6 +55,12 @@ public abstract class Tetramino {
             }
     };
 
+    protected final int[][] wallKicks = {
+            {-1, 9, -20, -21},
+            {1, -9, 20, 21},
+            {1, 11, -20, 19},
+
+    };
     protected final Block[] allBlocks;
     protected final Type type;
     protected Rotation rotation;
@@ -72,6 +77,21 @@ public abstract class Tetramino {
     protected abstract void CreateBlocks();
 
     public void Rotate(boolean clockwise) {
+        int[] blocksIdBefore = new int[4];
+        Rotation rotationBefore = rotation;
+        for(int i = 0; i < 4; i++) {
+            blocksIdBefore[i] = allBlocks[i].id;
+        }
+        rotate(clockwise);
+        if(isObstructed()) {
+            for(int i = 0; i < 4; i++) {
+                allBlocks[i].id = blocksIdBefore[i];
+            }
+            rotation = rotationBefore;
+        }
+    }
+
+    private void rotate(boolean clockwise) {
         int rotationOffsetIndex;
         int multiply;
 
@@ -118,7 +138,7 @@ public abstract class Tetramino {
         }
     }
 
-    public void move(boolean side) {
+    public void moveToSide(boolean side) {
         int offset = side ? 1: -1;
         if (!isOnEdge(side)) {
             for(Block block: allBlocks) {
@@ -133,7 +153,7 @@ public abstract class Tetramino {
         }
     }
 
-    public boolean isOnEdge(boolean side ) { //true = right, false = left
+    private boolean isOnEdge(boolean side ) { //true = right, false = left
         int edgeX = side ? 9: 0;
         for(Block block: allBlocks) {
             if (Block.getXFromId(block.id) == edgeX) {
@@ -141,5 +161,23 @@ public abstract class Tetramino {
             }
         }
         return false;
+    }
+
+    private boolean isObstructed() {
+        return isObstructedByEdge();
+    }
+
+    private boolean isObstructedByEdge() {
+        int min = Block.getXFromId(allBlocks[0].id);
+        int maxDifference = Math.abs(Block.getXFromId(allBlocks[1].id) - min);
+
+        for(Block block: allBlocks) {
+            int current = Block.getXFromId(block.id);
+            int currentDifference = Math.abs(current - min);
+            maxDifference = Math.max(maxDifference, currentDifference);
+            min = Math.min(min, current);
+        }
+
+        return maxDifference > 3;
     }
 }

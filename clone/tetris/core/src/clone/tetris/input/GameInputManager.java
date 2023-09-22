@@ -20,11 +20,11 @@ public class GameInputManager implements InputProcessor {
         switch (keycode) {
             case Input.Keys.RIGHT:
             case Input.Keys.D:
-                currentTetramino.move(true);
+                currentTetramino.moveToSide(true);
                 return true;
             case Input.Keys.LEFT:
             case Input.Keys.A:
-                currentTetramino.move(false);
+                currentTetramino.moveToSide(false);
                 return true;
             case Input.Keys.E:
                 currentTetramino.Rotate(true);
