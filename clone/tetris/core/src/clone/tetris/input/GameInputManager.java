@@ -1,18 +1,16 @@
 package clone.tetris.input;
 
-import clone.tetris.playables.tetramino.Tetramino;
+import clone.tetris.TetrisClone;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 
 public class GameInputManager implements InputProcessor {
 
-    private Tetramino currentTetramino;
-    public GameInputManager(Tetramino tetramino) {
-        currentTetramino = tetramino;
-    }
-
-    public void setCurrentTetramino(Tetramino newTetramino) {
-        currentTetramino = newTetramino;
+    private final TetrisClone game;
+    public boolean isSoftDropHold;
+    public GameInputManager(TetrisClone game) {
+        this.game = game;
+        isSoftDropHold = false;
     }
 
     @Override
@@ -20,24 +18,47 @@ public class GameInputManager implements InputProcessor {
         switch (keycode) {
             case Input.Keys.RIGHT:
             case Input.Keys.D:
-                currentTetramino.moveToSide(true);
+                if (game.currentState == TetrisClone.GameState.Running) {
+                    game.tetramino.moveToSide(true);
+                }
                 return true;
             case Input.Keys.LEFT:
             case Input.Keys.A:
-                currentTetramino.moveToSide(false);
+                if (game.currentState == TetrisClone.GameState.Running) {
+                    game.tetramino.moveToSide(false);
+                }
                 return true;
             case Input.Keys.E:
-                currentTetramino.Rotate(true);
+                if (game.currentState == TetrisClone.GameState.Running) {
+                    game.tetramino.Rotate(true);
+                }
                 return true;
             case Input.Keys.Q:
-                currentTetramino.Rotate(false);
-                break;
+                if (game.currentState == TetrisClone.GameState.Running) {
+                    game.tetramino.Rotate(false);
+                }
+                return true;
+            case Input.Keys.SPACE:
+                if (game.currentState == TetrisClone.GameState.Running) {
+                    game.tetramino.hardDrop();
+                }
+                return true;
+            case Input.Keys.DOWN:
+            case Input.Keys.S:
+                isSoftDropHold = true;
+                return true;
         }
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
+        switch (keycode) {
+            case Input.Keys.DOWN:
+            case Input.Keys.D:
+                isSoftDropHold = false;
+                return true;
+        }
         return false;
     }
 

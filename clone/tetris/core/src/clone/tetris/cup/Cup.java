@@ -30,7 +30,6 @@ public class Cup {
         color = new Color(1f, 1f, 1f, 0.25f);
 
         allCells = CreateAllCells();
-
     }
 
     public static float[] IdToPos(int id) {

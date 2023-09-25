@@ -4,7 +4,7 @@ import clone.tetris.config.Config;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Block {
+public class Block implements Cloneable{
     public int id;
     public Color color;
     private final float size;
@@ -28,5 +28,17 @@ public class Block {
 
     public static int getYFromId(int id) {
         return id / 10;
+    }
+
+    @Override
+    public Block clone() {
+        try {
+            Block clone = (Block) super.clone();
+            clone.color = new Color(this.color);
+            clone.id = id;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
