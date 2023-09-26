@@ -3,7 +3,6 @@ package clone.tetris;
 import clone.tetris.config.Config;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
-import clone.tetris.game.Timer;
 import clone.tetris.input.GameInputManager;
 import clone.tetris.playables.Tetramino;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -18,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import clone.tetris.cup.Cup;
+import com.badlogic.gdx.utils.Timer;
 
 public class TetrisClone extends ApplicationAdapter {
 
@@ -33,7 +33,7 @@ public class TetrisClone extends ApplicationAdapter {
 	public GameState currentState;
 	private GameInputManager gameInputManager;
 
-	private Timer fallingTask;
+	private Timer.Task fallingTask;
 
 	private boolean isOnVergeOfPlacing;
 
@@ -59,7 +59,7 @@ public class TetrisClone extends ApplicationAdapter {
 
 		currentState = GameState.Running;
 		Stats.refresh();
-		Stats.setDifficulty(9);
+		Stats.setDifficulty(25);
 
 		gameInputManager = new GameInputManager(this);
 		InputMultiplexer multiplexer = new InputMultiplexer(gameInputManager);
@@ -72,6 +72,14 @@ public class TetrisClone extends ApplicationAdapter {
 		parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:";
 		gameFont = generator.generateFont(parameter);
 
+		fallingTask = new Timer.Task() {
+			@Override
+			public void run() {
+				tetramino.updateCanBePlaced();
+				tetramino.moveDown();
+			}
+		};
+
 		updateTimer(0);
 		isOnVergeOfPlacing = false;
 	}
@@ -82,17 +90,13 @@ public class TetrisClone extends ApplicationAdapter {
 		tetramino.updateCanBePlaced();
 	}
 
-	private void updateTimer(int delay) {
+	private void updateTimer(float delay) {
+		fallingTask.cancel();
 		if (delay == 0) {
 			delay = Stats.fallIntervals[Stats.difficulty - 1];
 		}
 		if (currentState == GameState.Running) {
-			fallingTask = new Timer(delay, Stats.fallIntervals[Stats.difficulty - 1]) {
-				@Override
-				public void execute() {
-					tetramino.moveDown();
-				}
-			};
+			Timer.schedule(fallingTask, delay, Stats.fallIntervals[Stats.difficulty - 1]);
 		}
 	}
 
