@@ -72,19 +72,10 @@ public class TetrisClone extends ApplicationAdapter {
 		parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:";
 		gameFont = generator.generateFont(parameter);
 
-		createTimer();
+		updateTimer(0);
 		isOnVergeOfPlacing = false;
 	}
 
-	private void createTimer() {
-		fallingTask = new Timer() {
-			@Override
-			public void execute() {
-				tetramino.moveDown();
-			}
-		};
-		updateTimer(0);
-	}
 
 	private void createTetramino() {
 		tetramino = Tetramino.create();
@@ -96,8 +87,12 @@ public class TetrisClone extends ApplicationAdapter {
 			delay = Stats.fallIntervals[Stats.difficulty - 1];
 		}
 		if (currentState == GameState.Running) {
-			fallingTask.stop();
-			Timer.schedule(fallingTask, delay, Stats.fallIntervals[Stats.difficulty - 1]);
+			fallingTask = new Timer(delay, Stats.fallIntervals[Stats.difficulty - 1]) {
+				@Override
+				public void execute() {
+					tetramino.moveDown();
+				}
+			};
 		}
 	}
 
@@ -109,9 +104,8 @@ public class TetrisClone extends ApplicationAdapter {
 			isOnVergeOfPlacing = false;
 			if(tetramino.isObstructed()) {
 				currentState = GameState.TerminatedByOverflow;
-				fallingTask.cancel();
 			}
-			updateTimer(0f);
+			updateTimer(0);
 			return;
 		}
 		if(tetramino.canBePlaced && !isOnVergeOfPlacing) {

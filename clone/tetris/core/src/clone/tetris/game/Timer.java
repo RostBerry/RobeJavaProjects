@@ -3,7 +3,12 @@ package clone.tetris.game;
 public abstract class Timer implements Runnable{
     private int interval;
     private int delay;
-    private boolean toContinue = true;
+    private boolean toContinue;
+    public Timer(int delay, int interval) {
+        setDelay(delay);
+        setInterval(interval);
+        toContinue = true;
+    }
     @Override
     public void run() {
         try {
