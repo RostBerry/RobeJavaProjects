@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import clone.tetris.cup.Cup;
-import com.badlogic.gdx.utils.Timer;
 
 public class TetrisClone extends ApplicationAdapter {
 
@@ -33,9 +32,7 @@ public class TetrisClone extends ApplicationAdapter {
 	public GameState currentState;
 	private GameInputManager gameInputManager;
 
-	private Timer.Task fallingTask;
-
-	private boolean isOnVergeOfPlacing;
+	private int frameCounter;
 
 	private BitmapFont gameFont;
 	private FreeTypeFontGenerator generator;
@@ -59,7 +56,9 @@ public class TetrisClone extends ApplicationAdapter {
 
 		currentState = GameState.Running;
 		Stats.refresh();
-		Stats.setDifficulty(25);
+//		Stats.setDifficulty(18);
+
+		frameCounter = 0;
 
 		gameInputManager = new GameInputManager(this);
 		InputMultiplexer multiplexer = new InputMultiplexer(gameInputManager);
@@ -71,17 +70,6 @@ public class TetrisClone extends ApplicationAdapter {
 		parameter.color = Color.WHITE;
 		parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:";
 		gameFont = generator.generateFont(parameter);
-
-		fallingTask = new Timer.Task() {
-			@Override
-			public void run() {
-				tetramino.updateCanBePlaced();
-				tetramino.moveDown();
-			}
-		};
-
-		updateTimer(0);
-		isOnVergeOfPlacing = false;
 	}
 
 
@@ -90,13 +78,11 @@ public class TetrisClone extends ApplicationAdapter {
 		tetramino.updateCanBePlaced();
 	}
 
-	private void updateTimer(float delay) {
-		fallingTask.cancel();
-		if (delay == 0) {
-			delay = Stats.fallIntervals[Stats.difficulty - 1];
-		}
-		if (currentState == GameState.Running) {
-			Timer.schedule(fallingTask, delay, Stats.fallIntervals[Stats.difficulty - 1]);
+	private void updateTetramino() {
+		frameCounter++;
+		if (frameCounter >= Stats.fallIntervals[Stats.difficulty]) {
+			tetramino.moveDown();
+			frameCounter = 0;
 		}
 	}
 
@@ -105,21 +91,15 @@ public class TetrisClone extends ApplicationAdapter {
 			Stack.updateLines();
 			Stats.addLineBonus(Stack.removeType);
 			createTetramino();
-			isOnVergeOfPlacing = false;
 			if(tetramino.isObstructed()) {
 				currentState = GameState.TerminatedByOverflow;
 			}
-			updateTimer(0);
-			return;
-		}
-		if(tetramino.canBePlaced && !isOnVergeOfPlacing) {
-			isOnVergeOfPlacing = true;
-			updateTimer(Stats.lockPause);
 		}
 	}
 
 	@Override
 	public void render () {
+		updateTetramino();
 		updateCup();
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear( GL30.GL_COLOR_BUFFER_BIT  );

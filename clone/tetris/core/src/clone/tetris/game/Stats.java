@@ -18,24 +18,25 @@ public class Stats {
 
     public static int difficulty;
 
-    public static float[] fallIntervals = {
-            0.8f, //1
-            0.7166f, //2
-            0.6333f, //3
-            0.55f, //4
-            0.4666f, //5
-            0.3833f, //6
-            0.2166f, //7
-            0.1333f, //8
-            0.1f, //9
-            0.0833f, 0.0833f, 0.0833f, //10-12
-            0.0666f, 0.0666f, 0.0666f, //13-15
-            0.05f, 0.05f, 0.05f, //16-18
-            0.0333f, 0.0333f, 0.0333f, 0.0333f, 0.0333f, 0.0333f, 0.0333f, 0.0333f, 0.0333f, 0.0333f, //19-28
-            0.0166f //29
+    public static int[] fallIntervals = {
+            48, //1
+            43, //2
+            38, //3
+            33, //4
+            28, //5
+            23, //6
+            18, //7
+            13, //8
+            8, //9
+            6, //10
+            5, 5, 5, //11-13
+            4, 4, 4, //14-16
+            3, 3, 3, //17-19
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //20 - 29
+            1 //30
     };
 
-    public static final float lockPause = 0.5f;
+    public static final int lockPause = 30;
 
     public enum LineRemoveType {
         None,

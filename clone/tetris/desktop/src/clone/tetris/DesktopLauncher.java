@@ -11,7 +11,7 @@ public class DesktopLauncher {
 
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setWindowedMode((int)Config.ScreenWidth, (int)Config.ScreenHeight);
-		config.setForegroundFPS(90);
+		config.setForegroundFPS(60);
 		config.setTitle("Tetris Clone");
 		config.setResizable(false);
 		new Lwjgl3Application(new TetrisClone(), config);
