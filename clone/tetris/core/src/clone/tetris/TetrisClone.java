@@ -56,7 +56,7 @@ public class TetrisClone extends ApplicationAdapter {
 
 		currentState = GameState.Running;
 		Stats.refresh();
-//		Stats.setDifficulty(18);
+//		Stats.setDifficulty(29);
 
 		frameCounter = 0;
 
@@ -76,13 +76,33 @@ public class TetrisClone extends ApplicationAdapter {
 	private void createTetramino() {
 		tetramino = Tetramino.create();
 		tetramino.updateCanBePlaced();
+		resetCounter();
+	}
+
+	private void resetCounter() {
+		frameCounter = 0;
+	}
+
+	public void resetCounterBeforePlacing() {
+		if (tetramino.canBePlaced) {
+			resetCounter();
+		}
 	}
 
 	private void updateTetramino() {
 		frameCounter++;
-		if (frameCounter >= Stats.fallIntervals[Stats.difficulty]) {
-			tetramino.moveDown();
-			frameCounter = 0;
+		if(currentState == GameState.Running) {
+			if (tetramino.canBePlaced) {
+				if (frameCounter >= Stats.lockPause) {
+					tetramino.moveDown();
+					resetCounter();
+					return;
+				}
+			}
+			if (frameCounter >= Stats.fallIntervals[Stats.difficulty]) {
+				tetramino.moveDown();
+				resetCounter();
+			}
 		}
 	}
 

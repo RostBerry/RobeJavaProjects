@@ -20,22 +20,26 @@ public class GameInputManager implements InputProcessor {
             case Input.Keys.D:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.moveToSide(true);
+                    game.resetCounterBeforePlacing();
                 }
                 return true;
             case Input.Keys.LEFT:
             case Input.Keys.A:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.moveToSide(false);
+                    game.resetCounterBeforePlacing();
                 }
                 return true;
             case Input.Keys.E:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.Rotate(true);
+                    game.resetCounterBeforePlacing();
                 }
                 return true;
             case Input.Keys.Q:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.Rotate(false);
+                    game.resetCounterBeforePlacing();
                 }
                 return true;
             case Input.Keys.SPACE:
