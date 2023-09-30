@@ -28,11 +28,11 @@ public class Tetramino {
     }
 
     private static final int[][][] rotatingOffsets = {
-            { //Stick
+            { //I
                     {12, 1, -10, -21},
                     {-19, -10, -1, 8},
             },
-            { //Square
+            { //O
                     {0, 0, 0, 0},
                     {0, 0, 0, 0}
             },
@@ -40,19 +40,19 @@ public class Tetramino {
                     {2, -9, 0, -11},
                     {-20, -11, 0, 9}
             },
-            { //ZReverse
+            { //S
                     {-20, -9, 0, 11},
                     {-2, -11, 0, -9}
             },
-            { //Triangle
+            { //T
                     {-9, 11, 0, -11},
                     {-11, -9, 0, 9}
             },
-            { //G
+            { //J
                     {2, 11, 0, -11},
                     {-20, -9, 0, 9}
             },
-            { //GReverse
+            { //L
                     {-20, 11, 0, -11},
                     {-2, -9, 0, 9}
             }
@@ -174,6 +174,7 @@ public class Tetramino {
                     wallKicks[rotation.ordinal()]) {
                 move(perspective * wallKickOffset);
                 if(!isObstructed()) {
+                    updateCanBePlaced();
                     return;
                 }
                 move(-perspective * wallKickOffset);
@@ -305,7 +306,16 @@ public class Tetramino {
     }
 
     public boolean isObstructed() {
-        return isDistorted() || isColliding();
+        return isDistorted() || isColliding() || isOutsideCup();
+    }
+
+    private boolean isOutsideCup() {
+        for(Block block: allBlocks) {
+            if (block.id < 0 || block.id > 199) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isDistorted() {
