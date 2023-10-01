@@ -2,57 +2,73 @@ package clone.tetris.cup;
 
 import clone.tetris.game.Stats;
 import clone.tetris.playables.Block;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 public class Stack {
-    public static ArrayList<Block> allBlocks = new ArrayList<>();
+    public static Block.StackBlock[][] allBlocks = fillAllBlocks();
 
     public static Stats.LineRemoveType removeType = Stats.LineRemoveType.None;
 
+    private static Block.StackBlock[][] fillAllBlocks() {
+        Block.StackBlock[][] blocks = new Block.StackBlock[40][10];
+        for(int y = 39; y >= 0; y--) {
+            for(int x = 0; x < 10; x++) {
+                blocks[y][x] = null;
+            }
+        }
+        return blocks;
+    }
+
+    public static void addBlock(Block newBlock) {
+        allBlocks[newBlock.yId][newBlock.xId] = new Block.StackBlock(new Color(newBlock.color));
+    }
+
+    public static void removeBlock(int y, int x) {
+        allBlocks[y][x] = null;
+    }
+
     public static void draw(ShapeRenderer shapeRenderer) {
-        for (Block block: allBlocks) {
-            block.draw(shapeRenderer, Cup.IdToPos(block.id));
+        for(int y = 0; y < 20; y++) {
+            for(int x = 0; x < 10; x++) {
+                if (allBlocks[y][x] != null) {
+                    Cell cell = Cup.allCells[y][x];
+                    allBlocks[y][x].draw(shapeRenderer, cell.x, cell.y);
+                }
+            }
         }
     }
 
     private static void moveDown(int startY) {
-        for(Block block: allBlocks) {
-            if (Block.getYFromId(block.id) >= startY) {
-                block.id -= 10;
+        for(int y = startY; y < 40; y++) {
+            for(int x = 0; x < 10; x++) {
+                if (allBlocks[y][x] != null) {
+                    allBlocks[y - 1][x] = allBlocks[y][x];
+                    allBlocks[y][x] = null;
+                }
             }
         }
     }
 
     private static void removeLine(int Y) {
-        Iterator<Block> iterator = allBlocks.iterator();
-        while(iterator.hasNext()) {
-            Block block = iterator.next();
-            if (Block.getYFromId(block.id) == Y) {
-                iterator.remove();
+        for(int x = 0; x < 10; x++) {
+            if(allBlocks[Y][x] != null) {
+                removeBlock(Y, x);
             }
         }
     }
 
     public static void updateLines() {
         int removedLinesCount = 0;
-        for (int y = 19; y >= 0; y--) {
-            int count = 0;
+        for(int y = 39; y >= 0; y--) {
+            boolean isLineFull = true;
             for (int x = 0; x < 10; x++) {
-                int id = x + y * 10;
-                for (Block block: allBlocks) {
-                    if (block.id == id) {
-                        count++;
-                        break;
-                    }
-                }
-                if (count < x + 1) {
+                if (allBlocks[y][x] == null) {
+                    isLineFull = false;
                     break;
                 }
             }
-            if (count == 10) {
+            if(isLineFull) {
                 removeLine(y);
                 moveDown(y + 1);
                 removedLinesCount++;

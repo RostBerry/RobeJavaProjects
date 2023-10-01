@@ -19,9 +19,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import clone.tetris.cup.Cup;
 
 public class TetrisClone extends ApplicationAdapter {
-
-	private Cup cup;
 	public Tetramino tetramino;
+	private Tetramino.Preview previewTetramino;
 
 	public enum GameState {
 		Running,
@@ -31,6 +30,8 @@ public class TetrisClone extends ApplicationAdapter {
 
 	public GameState currentState;
 	private GameInputManager gameInputManager;
+
+	public boolean isSoftDropHold;
 
 	private int frameCounter;
 
@@ -50,8 +51,7 @@ public class TetrisClone extends ApplicationAdapter {
 		shapeRenderer = new ShapeRenderer();
 		shapeRenderer.setProjectionMatrix(camera.combined);
 
-		cup = new Cup();
-
+		Tetramino.createBag();
 		createTetramino();
 
 		currentState = GameState.Running;
@@ -59,6 +59,7 @@ public class TetrisClone extends ApplicationAdapter {
 //		Stats.setDifficulty(30);
 
 		frameCounter = 0;
+		isSoftDropHold = false;
 
 		gameInputManager = new GameInputManager(this);
 		InputMultiplexer multiplexer = new InputMultiplexer(gameInputManager);
@@ -75,15 +76,23 @@ public class TetrisClone extends ApplicationAdapter {
 
 	private void createTetramino() {
 		tetramino = Tetramino.create();
-		tetramino.updateCanBePlaced();
+		previewTetramino = Tetramino.createPreview();
 		resetCounter();
+		if (tetramino.isObstructed()) {
+			currentState = GameState.TerminatedByOverflow;
+			return;
+		}
+		if (tetramino.canBePlaced) {
+			return;
+		}
+		tetramino.moveDown();
 	}
 
 	private void resetCounter() {
 		frameCounter = 0;
 	}
 
-	public void resetCounterBeforePlacing() {
+	public void resetLockPause() {
 		if (tetramino.canBePlaced) {
 			resetCounter();
 		}
@@ -91,18 +100,25 @@ public class TetrisClone extends ApplicationAdapter {
 
 	private void updateTetramino() {
 		frameCounter++;
-		if(currentState == GameState.Running) {
-			if (tetramino.canBePlaced) {
-				if (frameCounter >= Stats.lockPause) {
-					tetramino.moveDown();
-					resetCounter();
-					return;
-				}
-			}
-			if (frameCounter >= Stats.fallIntervals[Stats.difficulty]) {
+		boolean canBeMovedDown = true;
+		if (tetramino.canBePlaced) {
+			if (frameCounter >= Stats.lockPause) {
 				tetramino.moveDown();
 				resetCounter();
+				return;
 			}
+			canBeMovedDown = false;
+		}
+		int interval = Stats.fallIntervals[Stats.difficulty - 1];
+		if (isSoftDropHold) {
+			interval /= (int) Math.log(Math.pow(Stats.softDropIncrease, Stats.difficulty)) + Stats.softDropIncrease;
+		}
+		if (canBeMovedDown && frameCounter >= interval) {
+			tetramino.moveDown();
+			if (isSoftDropHold) {
+				Stats.addSoftDropBonus();
+			}
+			resetCounter();
 		}
 	}
 
@@ -111,16 +127,15 @@ public class TetrisClone extends ApplicationAdapter {
 			Stack.updateLines();
 			Stats.addLineBonus(Stack.removeType);
 			createTetramino();
-			if(tetramino.isObstructed()) {
-				currentState = GameState.TerminatedByOverflow;
-			}
 		}
 	}
 
 	@Override
 	public void render () {
-		updateTetramino();
-		updateCup();
+		if(currentState == GameState.Running) {
+			updateTetramino();
+			updateCup();
+		}
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear( GL30.GL_COLOR_BUFFER_BIT  );
 		Gdx.gl.glEnable(GL30.GL_BLEND);
@@ -129,11 +144,13 @@ public class TetrisClone extends ApplicationAdapter {
 
 		batch.begin();
 
-		cup.draw(shapeRenderer);
+		Cup.draw(shapeRenderer);
 
 		Stack.draw(shapeRenderer);
 
 		tetramino.draw(shapeRenderer);
+
+		previewTetramino.draw(shapeRenderer);
 
 		batch.end();
 
@@ -141,6 +158,7 @@ public class TetrisClone extends ApplicationAdapter {
 		gameFont.draw(batch, "LINES: " + Stats.lineCount, Config.LinesCountX, Config.LinesCountY);
 		gameFont.draw(batch, "SCORE: \n" + Stats.score, Config.CurrentScoreX, Config.CurrentScoreY);
 		gameFont.draw(batch, "LEVEL: " + Stats.difficulty, Config.DifficultyX, Config.DifficultyY);
+		gameFont.draw(batch, "NEXT: ", Config.PreviewTextX, Config.PreviewTextY);
 		batch.end();
 	}
 	

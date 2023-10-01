@@ -6,6 +6,7 @@ public class Stats {
     private static final int hardDropBonus = 2;
 
     private static final int softDropBonus = 1;
+    public static final int softDropIncrease = 10;
 
     public static int score;
 
@@ -64,8 +65,8 @@ public class Stats {
     }
 
     public static void setDifficulty(int n) {
-        if (n > 29) {
-            difficulty = 29;
+        if (n > 30) {
+            difficulty = 30;
             return;
         }
         difficulty = n;
@@ -85,6 +86,8 @@ public class Stats {
     }
 
     public static void addHardDropBonus(int linesDelta) {
-        score += linesDelta * hardDropBonus;
+        score += (linesDelta - 1) * hardDropBonus;
     }
+
+    public static void addSoftDropBonus() {score += softDropBonus;}
 }

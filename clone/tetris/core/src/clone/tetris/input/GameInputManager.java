@@ -7,10 +7,8 @@ import com.badlogic.gdx.InputProcessor;
 public class GameInputManager implements InputProcessor {
 
     private final TetrisClone game;
-    public boolean isSoftDropHold;
     public GameInputManager(TetrisClone game) {
         this.game = game;
-        isSoftDropHold = false;
     }
 
     @Override
@@ -20,26 +18,26 @@ public class GameInputManager implements InputProcessor {
             case Input.Keys.D:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.moveToSide(true);
-                    game.resetCounterBeforePlacing();
+                    game.resetLockPause();
                 }
                 return true;
             case Input.Keys.LEFT:
             case Input.Keys.A:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.moveToSide(false);
-                    game.resetCounterBeforePlacing();
+                    game.resetLockPause();
                 }
                 return true;
-            case Input.Keys.E:
+            case Input.Keys.UP:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.Rotate(true);
-                    game.resetCounterBeforePlacing();
+                    game.resetLockPause();
                 }
                 return true;
             case Input.Keys.Q:
                 if (game.currentState == TetrisClone.GameState.Running) {
                     game.tetramino.Rotate(false);
-                    game.resetCounterBeforePlacing();
+                    game.resetLockPause();
                 }
                 return true;
             case Input.Keys.SPACE:
@@ -49,7 +47,7 @@ public class GameInputManager implements InputProcessor {
                 return true;
             case Input.Keys.DOWN:
             case Input.Keys.S:
-                isSoftDropHold = true;
+                game.isSoftDropHold = true;
                 return true;
         }
         return false;
@@ -59,8 +57,8 @@ public class GameInputManager implements InputProcessor {
     public boolean keyUp(int keycode) {
         switch (keycode) {
             case Input.Keys.DOWN:
-            case Input.Keys.D:
-                isSoftDropHold = false;
+            case Input.Keys.S:
+                game.isSoftDropHold = false;
                 return true;
         }
         return false;

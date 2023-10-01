@@ -1,13 +1,15 @@
 package clone.tetris.playables;
 
 
+import clone.tetris.config.Config;
+import clone.tetris.cup.Cell;
 import clone.tetris.cup.Cup;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import java.util.Random;
+import java.util.*;
 
 public class Tetramino {
     public enum Type {
@@ -27,157 +29,184 @@ public class Tetramino {
         CounterClockwise
     }
 
-    private static final int[][][] rotatingOffsets = {
+    private static final int[][][][] rotatingOffsets = {
             { //I
-                    {12, 1, -10, -21},
-                    {-19, -10, -1, 8},
+                    {{2, 1}, {1, 0}, {0, -1}, {-1, -2}},
+                    {{1, -2}, {0, -1}, {-1, 0}, {-2, 1}},
             },
             { //O
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0}
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
             },
             { //Z
-                    {2, -9, 0, -11},
-                    {-20, -11, 0, 9}
+                    {{2, 0}, {1, -1}, {0, 0}, {-1, -1}},
+                    {{0, -2}, {-1, -1}, {0, 0}, {-1, 1}}
             },
             { //S
-                    {-20, -9, 0, 11},
-                    {-2, -11, 0, -9}
+                    {{0, -2}, {1, -1}, {0, 0}, {1, 1}},
+                    {{-2, 0}, {-1, -1}, {0, 0}, {1, -1}}
             },
             { //T
-                    {-9, 11, 0, -11},
-                    {-11, -9, 0, 9}
+                    {{1, -1}, {1, 1}, {0, 0}, {-1, -1}},
+                    {{-1, -1}, {1, -1}, {0, 0}, {-1, 1}}
             },
             { //J
-                    {2, 11, 0, -11},
-                    {-20, -9, 0, 9}
+                    {{2, 0}, {1, 1}, {0, 0}, {-1, -1}},
+                    {{0, -2}, {1, -1}, {0, 0}, {-1, 1}}
             },
             { //L
-                    {-20, 11, 0, -11},
-                    {-2, -9, 0, 9}
+                    {{0, -2}, {1, 1}, {0, 0}, {-1, -1}},
+                    {{-2, 0}, {1, -1}, {0, 0}, {-1, 1}}
             }
     };
 
-    private final int[][] wallKicks = {
-            {-1, 9, -20, -21},
-            {1, -9, 20, 21},
-            {1, 11, -20, -19},
-            {-1, -11, 20, 19},
+    private static final int[][][] wallKicks = {
+            {{-1, 0}, {-1, 1}, {0, -2}, {-1, -2}},
+            {{1, 0}, {1, -1}, {0, 2}, {1, 2}},
+            {{1, 0}, {1, 1}, {0, -2}, {1, -2}},
+            {{-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
     };
 
-    private final int[][] wallKicksStick = {
-            {-2, 1, -12, 21},
-            {-1, 2, -21, 12},
-            {2, -1, 12, -21},
-            {1, -2, 21, -12}
+    private static final int[][][] wallKicksStick = {
+            {{-2, 0}, {1, 0}, {-2, -1}, {1, 2}},
+            {{-1, 0}, {2, 0}, {-1, 2}, {2, -1}},
+            {{2, 0}, {-1, 0}, {2, 1}, {-1, -2}},
+            {{1, 0}, {-2, 0}, {1, -2}, {-2, 1}}
     };
     private final Block[] allBlocks;
     private final Type type;
+
+    private static final Tetramino.Type[] allTypes = Tetramino.Type.values();
+    public static ArrayList<Tetramino.Type> preview;
+
+    public static class Preview {
+        private final Block.StackBlock[] allBlocks;
+        private static final int[][][] allBlocksPos = {
+                {{0, 2}, {1, 2}, {2, 2}, {3, 2}},
+                {{1, 3}, {2, 3}, {1, 2}, {2, 2}},
+                {{0, 3}, {1, 3}, {1, 2}, {2, 2}},
+                {{1, 3}, {2, 3}, {0, 2}, {1, 2}},
+                {{1, 3}, {0, 2}, {1, 2}, {2, 2}},
+                {{0, 3}, {0, 2}, {1, 2}, {2, 2}},
+                {{2, 3}, {0, 2}, {1, 2}, {2, 2}}
+        };
+        private final Type type;
+
+        public Preview(Type type) {
+            this.type = type;
+            Color color = TetraminoColors.colorPacks[0][this.type.ordinal()];
+            allBlocks = new Block.StackBlock[4];
+            for(int i = 0; i < 4; i++) {
+                allBlocks[i] = new Block.StackBlock(color);
+            }
+        }
+
+        public void draw(ShapeRenderer shapeRenderer) {
+            for (int i = 0; i < 4; i++) {
+                int[] blockPos = allBlocksPos[type.ordinal()][i];
+                allBlocks[i].draw(shapeRenderer,
+                        Config.PreviewX + Config.CellSize * blockPos[0],
+                        Config.PreviewY + Config.CellSize * blockPos[1]);
+            }
+        }
+    }
     private Rotation rotation;
-    private Color color;
 
     public boolean isPlaced;
     public boolean canBePlaced;
 
     public Tetramino(Type type) {
         this.type = type;
-        switch (this.type) {
-            case I:
-                color = TetraminoColors.IColor;
-                break;
-            case O:
-                color = TetraminoColors.OColor;
-                break;
-            case Z:
-                color = TetraminoColors.ZColor;
-                break;
-            case S:
-                color = TetraminoColors.SColor;
-                break;
-            case T:
-                color = TetraminoColors.TColor;
-                break;
-            case J:
-                color = TetraminoColors.JColor;
-                break;
-            case L:
-                color = TetraminoColors.LColor;
-        }
+        Color color = TetraminoColors.colorPacks[0][this.type.ordinal()];
         allBlocks = new Block[4];
         rotation = Rotation.Upside;
         isPlaced = false;
         canBePlaced = false;
-        CreateBlocks();
-    }
-
-    public static Tetramino create() {
-        Random r = new Random();
-        Tetramino.Type[] allTypes = Tetramino.Type.values();
-        return new Tetramino(allTypes[r.nextInt(allTypes.length)]);
-    }
-
-    private void CreateBlocks() {
         switch(type) {
             case I:
-                allBlocks[0] = new Block(183, color);
-                allBlocks[1] = new Block(184, color);
-                allBlocks[2] = new Block(185, color);
-                allBlocks[3] = new Block(186, color);
-                return;
+                allBlocks[0] = new Block(3, 19, color);
+                allBlocks[1] = new Block(4, 19, color);
+                allBlocks[2] = new Block(5, 19, color);
+                allBlocks[3] = new Block(6, 19, color);
+                break;
             case O:
-                allBlocks[0] = new Block(194, color);
-                allBlocks[1] = new Block(195, color);
-                allBlocks[2] = new Block(184, color);
-                allBlocks[3] = new Block(185, color);
-                return;
+                allBlocks[0] = new Block(4, 20, color);
+                allBlocks[1] = new Block(5, 20, color);
+                allBlocks[2] = new Block(4, 19, color);
+                allBlocks[3] = new Block(5, 19, color);
+                break;
             case Z:
-                allBlocks[0] = new Block(193, color);
-                allBlocks[1] = new Block(194, color);
-                allBlocks[2] = new Block(184, color);
-                allBlocks[3] = new Block(185, color);
-                return;
+                allBlocks[0] = new Block(3, 20, color);
+                allBlocks[1] = new Block(4, 20, color);
+                allBlocks[2] = new Block(4, 19, color);
+                allBlocks[3] = new Block(5, 19, color);
+                break;
             case S:
-                allBlocks[0] = new Block(195, color);
-                allBlocks[1] = new Block(194, color);
-                allBlocks[2] = new Block(184, color);
-                allBlocks[3] = new Block(183, color);
-                return;
+                allBlocks[0] = new Block(5, 20, color);
+                allBlocks[1] = new Block(4, 20, color);
+                allBlocks[2] = new Block(4, 19, color);
+                allBlocks[3] = new Block(3, 19, color);
+                break;
             case T:
-                allBlocks[0] = new Block(194, color);
-                allBlocks[1] = new Block(183, color);
-                allBlocks[2] = new Block(184, color);
-                allBlocks[3] = new Block(185, color);
-                return;
+                allBlocks[0] = new Block(4, 20, color);
+                allBlocks[1] = new Block(3, 19, color);
+                allBlocks[2] = new Block(4, 19, color);
+                allBlocks[3] = new Block(5, 19, color);
+                break;
             case J:
-                allBlocks[0] = new Block(193, color);
-                allBlocks[1] = new Block(183, color);
-                allBlocks[2] = new Block(184, color);
-                allBlocks[3] = new Block(185, color);
-                return;
+                allBlocks[0] = new Block(3, 20, color);
+                allBlocks[1] = new Block(3, 19, color);
+                allBlocks[2] = new Block(4, 19, color);
+                allBlocks[3] = new Block(5, 19, color);
+                break;
             case L:
-                allBlocks[0] = new Block(195, color);
-                allBlocks[1] = new Block(183, color);
-                allBlocks[2] = new Block(184, color);
-                allBlocks[3] = new Block(185, color);
-                return;
+                allBlocks[0] = new Block(5, 20, color);
+                allBlocks[1] = new Block(3, 19, color);
+                allBlocks[2] = new Block(4, 19, color);
+                allBlocks[3] = new Block(5, 19, color);
+                break;
             default:
                 System.out.println("You messed up with type");
         }
+        updateCanBePlaced();
+    }
+
+    public static void createBag() {
+        preview = new ArrayList<>(Arrays.asList(allTypes));
+        Collections.shuffle(preview);
+
+    }
+
+    public static Tetramino create() {
+        Tetramino createdTetramino = new Tetramino(preview.get(0));
+        preview.remove(0);
+        if(preview.isEmpty()) {
+            createBag();
+        }
+        return createdTetramino;
+    }
+
+    public static Tetramino.Preview createPreview() {
+        return new Preview(preview.get(0));
     }
 
     public void Rotate(boolean clockwise) {
+        Rotation initialRotation = rotation;
         rotate(clockwise);
         if(isObstructed()) {
             int perspective = clockwise? 1: -1;
-            for(int wallKickOffset: type == Type.I ?
-                    wallKicksStick[rotation.ordinal()]:
-                    wallKicks[rotation.ordinal()]) {
-                move(perspective * wallKickOffset);
+            int rotationIndex = clockwise? initialRotation.ordinal(): rotation.ordinal();
+            for(int[] wallKickOffset: type == Type.I ?
+                    wallKicksStick[rotationIndex]:
+                    wallKicks[rotationIndex]) {
+                int offsetX = perspective * wallKickOffset[0];
+                int offsetY = perspective * wallKickOffset[1];
+                move(offsetX, offsetY);
                 if(!isObstructed()) {
                     updateCanBePlaced();
                     return;
                 }
-                move(-perspective * wallKickOffset);
+                move(-offsetX, -offsetY);
             }
             rotate(!clockwise);
         }
@@ -221,20 +250,19 @@ public class Tetramino {
         }
 
         for(int index = 0; index < 4; index++) {
-            allBlocks[index].id += perspective * rotatingOffsets[type.ordinal()][rotationOffsetIndex][index];
+            int[] offset = rotatingOffsets[type.ordinal()][rotationOffsetIndex][index];
+            allBlocks[index].xId += perspective * offset[0];
+            allBlocks[index].yId += perspective * offset[1];
         }
     }
 
     public void updateCanBePlaced() {
         canBePlaced = false;
-        if(isOnBottom()) {
+        move(0, -1);
+        if(isObstructed()) {
             canBePlaced = true;
         }
-        move(-10);
-        if(isColliding()) {
-            canBePlaced = true;
-        }
-        move(10);
+        move(0, 1);
     }
 
     public void moveDown() {
@@ -242,31 +270,29 @@ public class Tetramino {
             place();
             return;
         }
-        move(-10);
+        move(0, -1);
         updateCanBePlaced();
     }
 
     public void moveToSide(boolean side) {
-        int offset = side ? 1: -1;
-        if(isOnEdge(side)) {
-            return;
-        }
-        move(offset);
+        int offsetX = side ? 1: -1;
+        move(offsetX, 0);
         if(isObstructed()) {
-            move(-offset);
+            move(-offsetX, 0);
         }
         updateCanBePlaced();
     }
 
-    private void move(int offset) {
+    private void move(int offsetX, int offsetY) {
         for(Block block: allBlocks) {
-            block.id += offset;
+            block.xId += offsetX;
+            block.yId += offsetY;
         }
     }
 
     public void place() {
         for(Block block: allBlocks) {
-            Stack.allBlocks.add(block.clone());
+            Stack.addBlock(block);
         }
         isPlaced = true;
     }
@@ -281,24 +307,17 @@ public class Tetramino {
     }
 
     public void draw(ShapeRenderer shapeRenderer) {
-        for (Block block: allBlocks) {
-            block.draw(shapeRenderer, Cup.IdToPos(block.id));
-        }
-    }
-
-    private boolean isOnEdge(boolean side ) { //true = right, false = left
-        int edgeX = side ? 9: 0;
-        for(Block block: allBlocks) {
-            if (Block.getXFromId(block.id) == edgeX) {
-                return true;
+        for (Block block : allBlocks) {
+            if (block.yId < 20) {
+                Cell cell = Cup.allCells[block.yId][block.xId];
+                block.draw(shapeRenderer, cell.x, cell.y);
             }
         }
-        return false;
     }
 
     private boolean isOnBottom() {
         for(Block block: allBlocks) {
-            if (block.id < 10) {
+            if (block.yId < 1) {
                 return true;
             }
         }
@@ -306,38 +325,22 @@ public class Tetramino {
     }
 
     public boolean isObstructed() {
-        return isDistorted() || isColliding() || isOutsideCup();
+        return isOutsideCup() || isColliding() ;
     }
 
     private boolean isOutsideCup() {
         for(Block block: allBlocks) {
-            if (block.id < 0 || block.id > 199) {
+            if (block.xId < 0 || block.yId < 0 || block.xId > 9 || block.yId > 39) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean isDistorted() {
-        int min = Block.getXFromId(allBlocks[0].id);
-        int maxDifference = Math.abs(Block.getXFromId(allBlocks[1].id) - min);
-
-        for(Block block: allBlocks) {
-            int current = Block.getXFromId(block.id);
-            int currentDifference = Math.abs(current - min);
-            maxDifference = Math.max(maxDifference, currentDifference);
-            min = Math.min(min, current);
-        }
-
-        return maxDifference > 3;
-    }
-
     private boolean isColliding() {
-        for(Block stackBlock: Stack.allBlocks) {
-            for(Block block: allBlocks) {
-                if (block.id == stackBlock.id) {
-                    return true;
-                }
+        for(Block block: allBlocks) {
+            if(Stack.allBlocks[block.yId][block.xId] != null) {
+                return true;
             }
         }
         return false;

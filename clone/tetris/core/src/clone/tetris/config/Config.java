@@ -26,6 +26,9 @@ public class Config {
     public static float CurrentScoreX;
     public static float CurrentScoreY;
 
+    public static float PreviewTextX;
+    public static float PreviewTextY;
+
     public static float PreviewX;
     public static float PreviewY;
 
@@ -35,11 +38,11 @@ public class Config {
     public static float StatsX;
     public static float StatsY;
 
-    public static void Update(float screenWidth, float screenHeight, LayoutType layoutType, int fontSize) {
-        GameFontSize = fontSize;
+    public static void Update(float screenWidth, float screenHeight, LayoutType layoutType) {
         CurrentLayout = layoutType;
         ScreenWidth = screenWidth;
         ScreenHeight = screenHeight;
+        GameFontSize = (int) (ScreenHeight * 0.04f);
         CupHeight = ScreenHeight * 0.6f;
         CellSize = CupHeight / 20;
         CupWidth = CellSize * 10;
@@ -56,8 +59,11 @@ public class Config {
         CurrentScoreX = TopScoreX;
         CurrentScoreY = TopScoreY - GameFontSize * 2;
 
+        PreviewTextX = TopScoreX;
+        PreviewTextY = CurrentScoreY - GameFontSize * 3;
+
         PreviewX = TopScoreX;
-        PreviewY = CurrentScoreY - GameFontSize * 2;
+        PreviewY = PreviewTextY - GameFontSize * 2 - CellSize * 4;
 
         DifficultyX = TopScoreX;
         DifficultyY = PreviewY - 100;
