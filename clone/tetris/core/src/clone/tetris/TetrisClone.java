@@ -57,7 +57,6 @@ public class TetrisClone extends ApplicationAdapter {
 		currentState = GameState.Running;
 		Stats.refresh();
 //		Stats.setDifficulty(30);
-
 		frameCounter = 0;
 		isSoftDropHold = false;
 

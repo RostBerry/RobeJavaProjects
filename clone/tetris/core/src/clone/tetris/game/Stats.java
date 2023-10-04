@@ -12,10 +12,6 @@ public class Stats {
 
     public static int lineCount;
     public static int possibleLineCount;
-    private static int valueLineCount;
-
-    //line values for variable goal for difficulty change
-    private static final int[] lineValues = {0, 1, 3, 5, 8};
 
     public static int difficulty;
 
@@ -52,7 +48,6 @@ public class Stats {
         score = 0;
         lineCount = 0;
         possibleLineCount = 0;
-        valueLineCount = 0;
         difficulty = 1;
     }
 
@@ -60,20 +55,15 @@ public class Stats {
         score += difficulty * lineBonuses[type.ordinal()];
         lineCount += type.ordinal();
         possibleLineCount += type == LineRemoveType.None? 0: 4;
-        valueLineCount += lineValues[type.ordinal()];
         refreshDifficulty();
     }
 
-    public static void setDifficulty(int n) {
-        if (n > 30) {
-            difficulty = 30;
-            return;
-        }
-        difficulty = n;
+    public static int getDifficulty() {
+        return Math.min(difficulty, 30);
     }
 
     private static void refreshDifficulty() {
-        if (difficulty < 29 && valueLineCount >= difficulty * 5) {
+        if (lineCount >= difficulty * 10) {
             difficulty++;
         }
     }
