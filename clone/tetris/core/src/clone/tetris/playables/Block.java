@@ -1,36 +1,38 @@
 package clone.tetris.playables;
 
-import clone.tetris.config.Config;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import clone.tetris.appearance.BlockTexture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Block{
     public static class StackBlock {
-        public Color color;
-        public StackBlock(Color color) {
-            this.color = color;
+        private final Tetramino.Type type;
+        public StackBlock(Tetramino.Type type) {
+            this.type = type;
         }
-        public void draw(ShapeRenderer shapeRenderer, float x, float y) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(color);
-            shapeRenderer.rect(x, y, Config.CellSize, Config.CellSize);
-            shapeRenderer.end();
+        public void draw(SpriteBatch batch, float x, float y) {
+            Sprite sprite = BlockTexture.spritePacks[0][type.ordinal()];
+            sprite.setPosition(x, y);
+            sprite.draw(batch);
         }
     }
     public int xId;
     public int yId;
-    public Color color;
 
-    public Block(int x, int y, Color color) {
+    public final Tetramino.Type blockType;
+
+    public boolean isGhost;
+
+    public Block(int x, int y, Tetramino.Type type) {
         xId = x;
         yId = y;
-        this.color = color;
+        blockType = type;
+        isGhost = false;
     }
 
-    public void draw(ShapeRenderer shapeRenderer, float x, float y) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(color);
-        shapeRenderer.rect(x, y, Config.CellSize, Config.CellSize);
-        shapeRenderer.end();
+    public void draw(SpriteBatch batch, float x, float y) {
+        Sprite sprite = isGhost ? BlockTexture.ghostSpritePacks[0][blockType.ordinal()]: BlockTexture.spritePacks[0][blockType.ordinal()];
+        sprite.setPosition(x, y);
+        sprite.draw(batch);
     }
 }

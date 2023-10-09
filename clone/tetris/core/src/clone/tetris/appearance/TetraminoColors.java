@@ -1,4 +1,4 @@
-package clone.tetris.playables;
+package clone.tetris.appearance;
 
 import com.badlogic.gdx.graphics.Color;
 

@@ -8,14 +8,18 @@ public class Stats {
     private static final int softDropBonus = 1;
     public static final int softDropIncrease = 10;
 
+    public static final int movingDelayOnPressed = 12;
+    public static final int movingDelayOnHold = 3;
+
     public static int score;
 
     public static int lineCount;
     public static int possibleLineCount;
+    private static int tetrisCount;
 
     public static int difficulty;
 
-    public static int[] fallIntervals = {
+    public static final int[] NESFallingIntervals = {
             48, //1
             43, //2
             38, //3
@@ -48,31 +52,50 @@ public class Stats {
         score = 0;
         lineCount = 0;
         possibleLineCount = 0;
-        difficulty = 1;
+        tetrisCount = 0;
+        difficulty = Config.StartDifficulty;
     }
 
     public static void addLineBonus(LineRemoveType type) {
         score += difficulty * lineBonuses[type.ordinal()];
         lineCount += type.ordinal();
         possibleLineCount += type == LineRemoveType.None? 0: 4;
-        refreshDifficulty();
+        switch (type) {
+            case None:
+                break;
+            case Tetris:
+                tetrisCount++;
+            default:
+                refreshDifficulty();
+        }
     }
 
-    public static int getDifficulty() {
-        return Math.min(difficulty, 30);
+    public static int getActualDifficulty() {
+        return Math.min(difficulty, Config.CurrentLayout == Config.GameFormat.NES ? 30: 15);
+    }
+
+    public static int calculateGuidelineDifficulty() {
+        return (int) ((float) Math.round(Math.pow(0.8f - (((float)difficulty - 1) * 0.007f), difficulty - 1) * Config.FPS));
     }
 
     private static void refreshDifficulty() {
-        if (lineCount >= difficulty * 10) {
-            difficulty++;
+        int linesToChangeDifficulty = difficulty * 10 - Config.StartDifficulty * 10 + 10;
+        if (lineCount >= linesToChangeDifficulty) {
+            switch (Config.CurrentLayout) {
+                case NES:
+                    difficulty++;
+                    break;
+                case Tetris99:
+                    difficulty = Math.min(15, difficulty + 1);
+            }
         }
     }
 
-    public static int getTetrisRate() {
+    public static float getTetrisRate() {
         if (possibleLineCount == 0) {
-            return 100;
+            return 1;
         }
-        return score / possibleLineCount;
+        return (float) tetrisCount * 4 / possibleLineCount;
     }
 
     public static void addHardDropBonus(int linesDelta) {

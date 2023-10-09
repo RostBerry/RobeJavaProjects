@@ -1,12 +1,12 @@
 package clone.tetris.playables;
 
 
-import clone.tetris.config.Config;
+import clone.tetris.game.Config;
 import clone.tetris.cup.Cell;
 import clone.tetris.cup.Cup;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.*;
@@ -94,20 +94,25 @@ public class Tetramino {
 
         public Preview(Type type) {
             this.type = type;
-            Color color = TetraminoColors.colorPacks[0][this.type.ordinal()];
             allBlocks = new Block.StackBlock[4];
             for(int i = 0; i < 4; i++) {
-                allBlocks[i] = new Block.StackBlock(color);
+                allBlocks[i] = new Block.StackBlock(type);
             }
         }
 
-        public void draw(ShapeRenderer shapeRenderer) {
+        public Type getType() {
+            return type;
+        }
+
+        public void draw(SpriteBatch batch, float x, float y) {
+            batch.begin();
             for (int i = 0; i < 4; i++) {
                 int[] blockPos = allBlocksPos[type.ordinal()][i];
-                allBlocks[i].draw(shapeRenderer,
-                        Config.PreviewX + Config.CellSize * blockPos[0],
-                        Config.PreviewY + Config.CellSize * blockPos[1]);
+                allBlocks[i].draw(batch,
+                        x + Config.CellSize * blockPos[0],
+                        y + Config.CellSize * blockPos[1]);
             }
+            batch.end();
         }
     }
     private Rotation rotation;
@@ -117,58 +122,61 @@ public class Tetramino {
 
     public Tetramino(Type type) {
         this.type = type;
-        Color color = TetraminoColors.colorPacks[0][this.type.ordinal()];
         allBlocks = new Block[4];
         rotation = Rotation.Upside;
         isPlaced = false;
         canBePlaced = false;
         switch(type) {
             case I:
-                allBlocks[0] = new Block(3, 19, color);
-                allBlocks[1] = new Block(4, 19, color);
-                allBlocks[2] = new Block(5, 19, color);
-                allBlocks[3] = new Block(6, 19, color);
+                allBlocks[0] = new Block(3, 19, type);
+                allBlocks[1] = new Block(4, 19, type);
+                allBlocks[2] = new Block(5, 19, type);
+                allBlocks[3] = new Block(6, 19, type);
                 break;
             case O:
-                allBlocks[0] = new Block(4, 20, color);
-                allBlocks[1] = new Block(5, 20, color);
-                allBlocks[2] = new Block(4, 19, color);
-                allBlocks[3] = new Block(5, 19, color);
+                allBlocks[0] = new Block(4, 20, type);
+                allBlocks[1] = new Block(5, 20, type);
+                allBlocks[2] = new Block(4, 19, type);
+                allBlocks[3] = new Block(5, 19, type);
                 break;
             case Z:
-                allBlocks[0] = new Block(3, 20, color);
-                allBlocks[1] = new Block(4, 20, color);
-                allBlocks[2] = new Block(4, 19, color);
-                allBlocks[3] = new Block(5, 19, color);
+                allBlocks[0] = new Block(3, 20, type);
+                allBlocks[1] = new Block(4, 20, type);
+                allBlocks[2] = new Block(4, 19, type);
+                allBlocks[3] = new Block(5, 19, type);
                 break;
             case S:
-                allBlocks[0] = new Block(5, 20, color);
-                allBlocks[1] = new Block(4, 20, color);
-                allBlocks[2] = new Block(4, 19, color);
-                allBlocks[3] = new Block(3, 19, color);
+                allBlocks[0] = new Block(5, 20, type);
+                allBlocks[1] = new Block(4, 20, type);
+                allBlocks[2] = new Block(4, 19, type);
+                allBlocks[3] = new Block(3, 19, type);
                 break;
             case T:
-                allBlocks[0] = new Block(4, 20, color);
-                allBlocks[1] = new Block(3, 19, color);
-                allBlocks[2] = new Block(4, 19, color);
-                allBlocks[3] = new Block(5, 19, color);
+                allBlocks[0] = new Block(4, 20, type);
+                allBlocks[1] = new Block(3, 19, type);
+                allBlocks[2] = new Block(4, 19, type);
+                allBlocks[3] = new Block(5, 19, type);
                 break;
             case J:
-                allBlocks[0] = new Block(3, 20, color);
-                allBlocks[1] = new Block(3, 19, color);
-                allBlocks[2] = new Block(4, 19, color);
-                allBlocks[3] = new Block(5, 19, color);
+                allBlocks[0] = new Block(3, 20, type);
+                allBlocks[1] = new Block(3, 19, type);
+                allBlocks[2] = new Block(4, 19, type);
+                allBlocks[3] = new Block(5, 19, type);
                 break;
             case L:
-                allBlocks[0] = new Block(5, 20, color);
-                allBlocks[1] = new Block(3, 19, color);
-                allBlocks[2] = new Block(4, 19, color);
-                allBlocks[3] = new Block(5, 19, color);
+                allBlocks[0] = new Block(5, 20, type);
+                allBlocks[1] = new Block(3, 19, type);
+                allBlocks[2] = new Block(4, 19, type);
+                allBlocks[3] = new Block(5, 19, type);
                 break;
             default:
                 System.out.println("You messed up with type");
         }
         updateCanBePlaced();
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public static void createBag() {
@@ -186,9 +194,22 @@ public class Tetramino {
         return createdTetramino;
     }
 
-    public static Tetramino.Preview createPreview() {
+    public static Tetramino createGhost(Tetramino tetramino) {
+        Tetramino ghost = new Tetramino(tetramino.type);
+        for (int blockId = 0; blockId < 4; blockId++) {
+            ghost.allBlocks[blockId] = new Block(tetramino.allBlocks[blockId].xId, tetramino.allBlocks[blockId].yId, tetramino.type);
+            ghost.allBlocks[blockId].isGhost = true;
+        }
+        return ghost;
+    }
+
+    public static Preview createPreviewFromBag() {
         return new Preview(preview.get(0));
     }
+
+    public static Tetramino fromPreview(Preview previewMino) {return new Tetramino(previewMino.type);}
+
+    public static Tetramino.Preview toPreview(Tetramino tetramino) {return new Preview(tetramino.type);}
 
     public void Rotate(boolean clockwise) {
         Rotation initialRotation = rotation;
@@ -306,16 +327,18 @@ public class Tetramino {
         Stats.addHardDropBonus(linesCount);
     }
 
-    public void draw(ShapeRenderer shapeRenderer) {
+    public void draw(SpriteBatch batch) {
+        batch.begin();
         for (Block block : allBlocks) {
             if (block.yId < 20) {
                 Cell cell = Cup.allCells[block.yId][block.xId];
-                block.draw(shapeRenderer, cell.x, cell.y);
+                block.draw(batch, cell.x, cell.y);
             }
         }
+        batch.end();
     }
 
-    private boolean isOnBottom() {
+    public boolean isOnBottom() {
         for(Block block: allBlocks) {
             if (block.yId < 1) {
                 return true;
@@ -335,6 +358,15 @@ public class Tetramino {
             }
         }
         return false;
+    }
+
+    public boolean isOutsideVisibleCup() {
+        for(Block block: allBlocks) {
+            if (block.yId < 20) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isColliding() {

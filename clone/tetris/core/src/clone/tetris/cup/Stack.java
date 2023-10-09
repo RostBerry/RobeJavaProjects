@@ -3,6 +3,7 @@ package clone.tetris.cup;
 import clone.tetris.game.Stats;
 import clone.tetris.playables.Block;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class Stack {
@@ -21,22 +22,24 @@ public class Stack {
     }
 
     public static void addBlock(Block newBlock) {
-        allBlocks[newBlock.yId][newBlock.xId] = new Block.StackBlock(new Color(newBlock.color));
+        allBlocks[newBlock.yId][newBlock.xId] = new Block.StackBlock(newBlock.blockType);
     }
 
     public static void removeBlock(int y, int x) {
         allBlocks[y][x] = null;
     }
 
-    public static void draw(ShapeRenderer shapeRenderer) {
+    public static void draw(SpriteBatch batch) {
+        batch.begin();
         for(int y = 0; y < 20; y++) {
             for(int x = 0; x < 10; x++) {
                 if (allBlocks[y][x] != null) {
                     Cell cell = Cup.allCells[y][x];
-                    allBlocks[y][x].draw(shapeRenderer, cell.x, cell.y);
+                    allBlocks[y][x].draw(batch, cell.x, cell.y);
                 }
             }
         }
+        batch.end();
     }
 
     private static void moveDown(int startY) {

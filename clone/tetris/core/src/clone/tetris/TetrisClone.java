@@ -1,13 +1,15 @@
 package clone.tetris;
 
-import clone.tetris.config.Config;
+import clone.tetris.game.Config;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
+import clone.tetris.game.TetraminoStatsManager;
 import clone.tetris.input.GameInputManager;
 import clone.tetris.playables.Tetramino;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -19,8 +21,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import clone.tetris.cup.Cup;
 
 public class TetrisClone extends ApplicationAdapter {
-	public Tetramino tetramino;
+	private Tetramino tetramino;
+	private Tetramino.Preview heldTetramino;
 	private Tetramino.Preview previewTetramino;
+	private Tetramino ghostTetramino;
 
 	public enum GameState {
 		Running,
@@ -28,12 +32,19 @@ public class TetrisClone extends ApplicationAdapter {
 		TerminatedByTimeout
 	}
 
-	public GameState currentState;
+	private GameState currentState;
 	private GameInputManager gameInputManager;
 
 	public boolean isSoftDropHold;
+	private boolean isMovingRightPressed;
+	private boolean isMovingLeftPressed;
+	private boolean isMovingRightHold;
+	private boolean isMovingLeftHold;
+	private boolean movingSide;
+	private boolean isHeld;
 
 	private int frameCounter;
+	private int movingFrameCounter;
 
 	private BitmapFont gameFont;
 	private FreeTypeFontGenerator generator;
@@ -52,31 +63,55 @@ public class TetrisClone extends ApplicationAdapter {
 		shapeRenderer.setProjectionMatrix(camera.combined);
 
 		Tetramino.createBag();
+		TetraminoStatsManager.refresh();
 		createTetramino();
+		createGhostTetramino();
 
 		currentState = GameState.Running;
 		Stats.refresh();
-//		Stats.setDifficulty(30);
-		frameCounter = 0;
+		resetCounter();
+		movingFrameCounter = 0;
 		isSoftDropHold = false;
+		isMovingRightPressed = false;
+		isMovingLeftPressed = false;
+		isMovingRightHold = false;
+		isMovingLeftHold = false;
+		movingSide = false;
+		isHeld = false;
 
 		gameInputManager = new GameInputManager(this);
 		InputMultiplexer multiplexer = new InputMultiplexer(gameInputManager);
 		Gdx.input.setInputProcessor(multiplexer);
 
-		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arial_black.ttf"));
+		Controllers.addListener(gameInputManager);
+
+		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = Config.GameFontSize;
 		parameter.color = Color.WHITE;
-		parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:";
+		parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:%.";
 		gameFont = generator.generateFont(parameter);
 	}
 
 
 	private void createTetramino() {
 		tetramino = Tetramino.create();
-		previewTetramino = Tetramino.createPreview();
+		previewTetramino = Tetramino.createPreviewFromBag();
 		resetCounter();
+		specifySpawnPos();
+		TetraminoStatsManager.addToCount(tetramino);
+	}
+
+	private void createGhostTetramino() {
+		ghostTetramino = Tetramino.createGhost(tetramino);
+		if (!tetramino.canBePlaced) {
+			while (!ghostTetramino.canBePlaced) {
+				ghostTetramino.moveDown();
+			}
+		}
+	}
+
+	private void specifySpawnPos() {
 		if (tetramino.isObstructed()) {
 			currentState = GameState.TerminatedByOverflow;
 			return;
@@ -97,9 +132,53 @@ public class TetrisClone extends ApplicationAdapter {
 		}
 	}
 
+	public void pressMoveButton(boolean side) {
+		moveTetramino(side);
+		movingFrameCounter = 0;
+		if (side) {
+			isMovingRightPressed = true;
+		} else {
+			isMovingLeftPressed = true;
+		}
+		movingSide = side;
+	}
+
+	public void unPressMoveButton(boolean side) {
+		movingSide = !side;
+		if(side) {
+			isMovingRightHold = false;
+			isMovingRightPressed = false;
+		} else {
+			isMovingLeftHold = false;
+			isMovingLeftPressed = false;
+		}
+	}
+
 	private void updateTetramino() {
 		frameCounter++;
+		movingFrameCounter++;
 		boolean canBeMovedDown = true;
+		if(isMovingRightPressed || isMovingLeftPressed) {
+			if (movingFrameCounter >= Stats.movingDelayOnPressed) {
+				moveTetramino(movingSide);
+				if (movingSide) {
+					isMovingRightHold = true;
+				} else {
+					isMovingLeftHold = true;
+				}
+				if (movingSide) {
+					isMovingRightPressed = false;
+				} else {
+					isMovingLeftPressed = false;
+				}
+				movingFrameCounter = 0;
+			}
+		} else if (isMovingRightHold || isMovingLeftHold) {
+			if (movingFrameCounter >= Stats.movingDelayOnHold) {
+				moveTetramino(movingSide);
+				movingFrameCounter = 0;
+			}
+		}
 		if (tetramino.canBePlaced) {
 			if (frameCounter >= Stats.lockPause) {
 				tetramino.moveDown();
@@ -108,7 +187,7 @@ public class TetrisClone extends ApplicationAdapter {
 			}
 			canBeMovedDown = false;
 		}
-		int interval = Stats.fallIntervals[Stats.difficulty - 1];
+		int interval = Config.CurrentLayout == Config.GameFormat.NES? Stats.NESFallingIntervals[Stats.getActualDifficulty() - 1] - 1 : Stats.calculateGuidelineDifficulty();
 		if (isSoftDropHold) {
 			interval /= (int) Math.log(Math.pow(Stats.softDropIncrease, Stats.difficulty)) + Stats.softDropIncrease;
 		}
@@ -123,9 +202,58 @@ public class TetrisClone extends ApplicationAdapter {
 
 	private void updateCup() {
 		if(tetramino.isPlaced) {
+			if (tetramino.isOutsideVisibleCup()) {
+				currentState = GameState.TerminatedByOverflow;
+				return;
+			}
 			Stack.updateLines();
 			Stats.addLineBonus(Stack.removeType);
 			createTetramino();
+			createGhostTetramino();
+			isHeld = false;
+			isMovingRightPressed = false;
+			isMovingLeftPressed = false;
+		}
+	}
+
+	public void moveTetramino(boolean side) {
+		if (currentState == GameState.Running) {
+			tetramino.moveToSide(side);
+			createGhostTetramino();
+			resetLockPause();
+		}
+	}
+
+	public void rotateTetramino(boolean clockwise) {
+		if (currentState == GameState.Running) {
+			tetramino.Rotate(clockwise);
+			createGhostTetramino();
+			resetLockPause();
+		}
+	}
+
+	public void holdTetramino() {
+		if (currentState != GameState.Running || isHeld) {
+			return;
+		}
+		isHeld = true;
+		if (heldTetramino != null) {
+			Tetramino.Type heldTetraminoType = heldTetramino.getType();
+			heldTetramino = new Tetramino.Preview(tetramino.getType());
+			tetramino = new Tetramino(heldTetraminoType);
+			createGhostTetramino();
+			resetCounter();
+			specifySpawnPos();
+			return;
+		}
+		heldTetramino = Tetramino.toPreview(tetramino);
+		createTetramino();
+		createGhostTetramino();
+	}
+
+	public void hardDropTetramino() {
+		if(currentState == GameState.Running) {
+			tetramino.hardDrop();
 		}
 	}
 
@@ -141,23 +269,31 @@ public class TetrisClone extends ApplicationAdapter {
 		Gdx.gl.glBlendFunc(GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA);
 		camera.update();
 
-		batch.begin();
-
 		Cup.draw(shapeRenderer);
 
-		Stack.draw(shapeRenderer);
+		Stack.draw(batch);
 
-		tetramino.draw(shapeRenderer);
+		ghostTetramino.draw(batch);
 
-		previewTetramino.draw(shapeRenderer);
+		tetramino.draw(batch);
 
-		batch.end();
+		previewTetramino.draw(batch, Config.PreviewX, Config.PreviewY);
+
+		if(heldTetramino != null) {
+			heldTetramino.draw(batch, Config.HoldX, Config.HoldY);
+		}
+
+		TetraminoStatsManager.drawPreviews(batch);
 
 		batch.begin();
 		gameFont.draw(batch, "LINES: " + Stats.lineCount, Config.LinesCountX, Config.LinesCountY);
 		gameFont.draw(batch, "SCORE: \n" + Stats.score, Config.CurrentScoreX, Config.CurrentScoreY);
 		gameFont.draw(batch, "LEVEL: " + Stats.difficulty, Config.DifficultyX, Config.DifficultyY);
-		gameFont.draw(batch, "NEXT: ", Config.PreviewTextX, Config.PreviewTextY);
+		gameFont.draw(batch, "NEXT:", Config.PreviewTextX, Config.PreviewTextY);
+		gameFont.draw(batch, "HOLD:", Config.HoldTextX, Config.HoldTextY);
+		gameFont.draw(batch, "STATISTICS:", Config.StatsTextX, Config.StatsTextY);
+		TetraminoStatsManager.drawTexts(batch, gameFont);
+		gameFont.draw(batch, "TETRIS RATE: " + (int)(Stats.getTetrisRate() * 100) + "%", Config.TetrisRateX, Config.TetrisRateY);
 		batch.end();
 	}
 	

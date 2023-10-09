@@ -1,13 +1,17 @@
-package clone.tetris.config;
+package clone.tetris.game;
 
 public class Config {
+    public static float MultiplierFactor;
+    public static int FPS;
+
     public static float ScreenWidth;
     public static float ScreenHeight;
-    public enum LayoutType {
+    public enum GameFormat {
         NES,
         Tetris99
     }
-    public static LayoutType CurrentLayout;
+    public static GameFormat CurrentLayout;
+    public static int StartDifficulty;
     public static float CupHeight;
     public static float CellSize;
     public static float CupWidth;
@@ -35,14 +39,29 @@ public class Config {
     public static float DifficultyX;
     public static float DifficultyY;
 
+    public static float TetrisRateX;
+    public static float TetrisRateY;
+
+    public static float HoldTextX;
+    public static float HoldTextY;
+
+    public static float HoldX;
+    public static float HoldY;
+
+    public static float StatsTextX;
+    public static float StatsTextY;
+
     public static float StatsX;
     public static float StatsY;
 
-    public static void Update(float screenWidth, float screenHeight, LayoutType layoutType) {
-        CurrentLayout = layoutType;
-        ScreenWidth = screenWidth;
-        ScreenHeight = screenHeight;
-        GameFontSize = (int) (ScreenHeight * 0.04f);
+    public static void Update(float screenWidth, float screenHeight, GameFormat gameFormat, int startDifficulty, int fps) {
+        MultiplierFactor = 1f;
+        FPS = fps;
+        CurrentLayout = gameFormat;
+        ScreenWidth = screenWidth * MultiplierFactor;
+        ScreenHeight = screenHeight * MultiplierFactor;
+        StartDifficulty = startDifficulty;
+        GameFontSize = (int) (ScreenHeight * 0.03f);
         CupHeight = ScreenHeight * 0.6f;
         CellSize = CupHeight / 20;
         CupWidth = CellSize * 10;
@@ -51,9 +70,9 @@ public class Config {
         CupTopY = CupY - CupHeight;
 
         LinesCountX = CupX;
-        LinesCountY = CupY + CupHeight + (ScreenHeight - CupHeight - CupY) / 2;
+        LinesCountY = CupY + CupHeight + (ScreenHeight - CupHeight - CupY) / 4;
 
-        TopScoreX = CupX + CupWidth + 10;
+        TopScoreX = CupX + CupWidth + 10 * MultiplierFactor;
         TopScoreY = LinesCountY;
 
         CurrentScoreX = TopScoreX;
@@ -66,9 +85,21 @@ public class Config {
         PreviewY = PreviewTextY - GameFontSize * 2 - CellSize * 4;
 
         DifficultyX = TopScoreX;
-        DifficultyY = PreviewY - 100;
+        DifficultyY = PreviewY;
 
-        StatsX = CupX * 0.2f;
-        StatsY = LinesCountY;
+        TetrisRateX = DifficultyX;
+        TetrisRateY = DifficultyY - GameFontSize;
+
+        HoldTextX = CupX - CellSize * 5;
+        HoldTextY = CupY + CupHeight;
+
+        HoldX = HoldTextX;
+        HoldY = HoldTextY - CellSize * 4 - GameFontSize * 2;
+
+        StatsX = CupX * 0.3f;
+        StatsY = CupY - CellSize * 2;
+
+        StatsTextX = StatsX;
+        StatsTextY = StatsY + CellSize * 3 * 4 + CellSize * 2.5f;
     }
 }

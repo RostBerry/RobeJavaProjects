@@ -1,6 +1,6 @@
 package clone.tetris.cup;
 
-import clone.tetris.config.Config;
+import clone.tetris.game.Config;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
