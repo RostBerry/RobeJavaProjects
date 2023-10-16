@@ -1,12 +1,8 @@
 package clone.tetris.appearance;
 
-import clone.tetris.game.Config;
+import clone.tetris.game.config.Config;
 import clone.tetris.playables.Tetramino;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class BlockTexture {

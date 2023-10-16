@@ -1,26 +1,24 @@
-package clone.tetris;
+package clone.tetris.scenes;
 
-import clone.tetris.game.Config;
+import clone.tetris.game.config.Config;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
 import clone.tetris.game.TetraminoStatsManager;
+import clone.tetris.game.config.UIConfig;
 import clone.tetris.input.GameInputManager;
 import clone.tetris.playables.Tetramino;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import clone.tetris.cup.Cup;
 
-public class TetrisClone extends ApplicationAdapter {
+public class GameSession extends ApplicationAdapter {
 	private Tetramino tetramino;
 	private Tetramino.Preview heldTetramino;
 	private Tetramino.Preview previewTetramino;
@@ -45,9 +43,6 @@ public class TetrisClone extends ApplicationAdapter {
 
 	private int frameCounter;
 	private int movingFrameCounter;
-
-	private BitmapFont gameFont;
-	private FreeTypeFontGenerator generator;
 
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
@@ -84,13 +79,6 @@ public class TetrisClone extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(multiplexer);
 
 		Controllers.addListener(gameInputManager);
-
-		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = Config.GameFontSize;
-		parameter.color = Color.WHITE;
-		parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:%.";
-		gameFont = generator.generateFont(parameter);
 	}
 
 
@@ -286,14 +274,14 @@ public class TetrisClone extends ApplicationAdapter {
 		TetraminoStatsManager.drawPreviews(batch);
 
 		batch.begin();
-		gameFont.draw(batch, "LINES: " + Stats.lineCount, Config.LinesCountX, Config.LinesCountY);
-		gameFont.draw(batch, "SCORE: \n" + Stats.score, Config.CurrentScoreX, Config.CurrentScoreY);
-		gameFont.draw(batch, "LEVEL: " + Stats.difficulty, Config.DifficultyX, Config.DifficultyY);
-		gameFont.draw(batch, "NEXT:", Config.PreviewTextX, Config.PreviewTextY);
-		gameFont.draw(batch, "HOLD:", Config.HoldTextX, Config.HoldTextY);
-		gameFont.draw(batch, "STATISTICS:", Config.StatsTextX, Config.StatsTextY);
-		TetraminoStatsManager.drawTexts(batch, gameFont);
-		gameFont.draw(batch, "TETRIS RATE: " + (int)(Stats.getTetrisRate() * 100) + "%", Config.TetrisRateX, Config.TetrisRateY);
+		UIConfig.GameFont.draw(batch, "LINES: " + Stats.lineCount, Config.LinesCountX, Config.LinesCountY);
+		UIConfig.GameFont.draw(batch, "SCORE: \n" + Stats.score, Config.CurrentScoreX, Config.CurrentScoreY);
+		UIConfig.GameFont.draw(batch, "LEVEL: " + Stats.difficulty, Config.DifficultyX, Config.DifficultyY);
+		UIConfig.GameFont.draw(batch, "NEXT:", Config.PreviewTextX, Config.PreviewTextY);
+		UIConfig.GameFont.draw(batch, "HOLD:", Config.HoldTextX, Config.HoldTextY);
+		UIConfig.GameFont.draw(batch, "STATISTICS:", Config.StatsTextX, Config.StatsTextY);
+		TetraminoStatsManager.drawTexts(batch, UIConfig.GameFont);
+		UIConfig.GameFont.draw(batch, "TETRIS RATE: " + (int)(Stats.getTetrisRate() * 100) + "%", Config.TetrisRateX, Config.TetrisRateY);
 		batch.end();
 	}
 	
@@ -302,7 +290,5 @@ public class TetrisClone extends ApplicationAdapter {
 
 		batch.dispose();
 		shapeRenderer.dispose();
-		gameFont.dispose();
-		generator.dispose();
 	}
 }

@@ -1,9 +1,12 @@
 package clone.tetris;
 
+import clone.tetris.game.TetrisClone;
+import clone.tetris.game.config.GameStartConfig;
+import clone.tetris.game.config.MenuConfig;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
-import clone.tetris.game.Config;
+import clone.tetris.game.config.Config;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {

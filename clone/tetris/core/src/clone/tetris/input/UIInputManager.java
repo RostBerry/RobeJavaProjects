@@ -1,8 +1,15 @@
 package clone.tetris.input;
 
+import clone.tetris.game.TetrisClone;
+import clone.tetris.game.config.Config;
 import com.badlogic.gdx.InputProcessor;
 
-public class MenuInputManager implements InputProcessor {
+public class UIInputManager implements InputProcessor {
+    private final TetrisClone tetrisClone;
+
+    public UIInputManager(TetrisClone tetris) {
+        tetrisClone = tetris;
+    }
 
     @Override
     public boolean keyDown(int keycode) {
@@ -26,7 +33,10 @@ public class MenuInputManager implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
+        screenX = (int) Config.ScreenWidth - screenX;
+        screenY = (int)Config.ScreenHeight - screenY;
+        tetrisClone.mouseReleased(screenX, screenY);
+        return true;
     }
 
     @Override
@@ -41,7 +51,10 @@ public class MenuInputManager implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        return false;
+        screenX = (int) Config.ScreenWidth - screenX;
+        screenY = (int)Config.ScreenHeight - screenY;
+        tetrisClone.mouseMoved(screenX, screenY);
+        return true;
     }
 
     @Override

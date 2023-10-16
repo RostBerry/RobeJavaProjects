@@ -1,4 +1,4 @@
-package clone.tetris.game;
+package clone.tetris.game.config;
 
 public class Config {
     public static float MultiplierFactor;
@@ -20,6 +20,7 @@ public class Config {
     public static float CupTopY;
 
     public static int GameFontSize;
+    public static int MenuFontSize;
 
     public static float LinesCountX;
     public static float LinesCountY;
@@ -62,6 +63,7 @@ public class Config {
         ScreenHeight = screenHeight * MultiplierFactor;
         StartDifficulty = startDifficulty;
         GameFontSize = (int) (ScreenHeight * 0.03f);
+        MenuFontSize = GameFontSize * 2;
         CupHeight = ScreenHeight * 0.6f;
         CellSize = CupHeight / 20;
         CupWidth = CellSize * 10;
@@ -101,5 +103,8 @@ public class Config {
 
         StatsTextX = StatsX;
         StatsTextY = StatsY + CellSize * 3 * 4 + CellSize * 2.5f;
+
+        MenuConfig.update();
+        GameStartConfig.update();
     }
 }

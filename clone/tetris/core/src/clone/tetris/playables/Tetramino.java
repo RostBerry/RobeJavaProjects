@@ -1,13 +1,12 @@
 package clone.tetris.playables;
 
 
-import clone.tetris.game.Config;
+import clone.tetris.game.config.Config;
 import clone.tetris.cup.Cell;
 import clone.tetris.cup.Cup;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.*;
 

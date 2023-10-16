@@ -1,5 +1,7 @@
 package clone.tetris.game;
 
+import clone.tetris.game.config.Config;
+
 public class Stats {
     private static final int[] lineBonuses = {0, 100, 300, 500, 800};
 

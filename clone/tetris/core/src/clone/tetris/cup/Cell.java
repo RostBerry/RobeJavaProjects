@@ -1,7 +1,7 @@
 package clone.tetris.cup;
 
 
-import clone.tetris.game.Config;
+import clone.tetris.game.config.Config;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class Cell {

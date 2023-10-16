@@ -1,5 +1,6 @@
 package clone.tetris.game;
 
+import clone.tetris.game.config.Config;
 import clone.tetris.playables.Tetramino;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

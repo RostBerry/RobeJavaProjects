@@ -1,6 +1,6 @@
 package clone.tetris.input;
 
-import clone.tetris.TetrisClone;
+import clone.tetris.scenes.GameSession;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
@@ -8,8 +8,8 @@ import com.badlogic.gdx.controllers.ControllerListener;
 
 public class GameInputManager implements InputProcessor, ControllerListener {
 
-    private final TetrisClone game;
-    public GameInputManager(TetrisClone game) {
+    private final GameSession game;
+    public GameInputManager(GameSession game) {
         this.game = game;
     }
 
