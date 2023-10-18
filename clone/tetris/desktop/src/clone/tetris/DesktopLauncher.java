@@ -10,7 +10,7 @@ import clone.tetris.game.config.Config;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		Config.Update(1280, 960, Config.GameFormat.Tetris99, 1, 60);
+		Config.Update(1280, 960, Config.GameFormat.Tetris99, 60);
 
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setWindowedMode((int) (Config.ScreenWidth / Config.MultiplierFactor), (int) (Config.ScreenHeight / Config.MultiplierFactor));

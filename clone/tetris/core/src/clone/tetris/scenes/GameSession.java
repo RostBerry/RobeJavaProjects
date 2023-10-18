@@ -4,12 +4,14 @@ import clone.tetris.game.config.Config;
 import clone.tetris.cup.Stack;
 import clone.tetris.game.Stats;
 import clone.tetris.game.TetraminoStatsManager;
+import clone.tetris.game.config.GameConfig;
 import clone.tetris.game.config.UIConfig;
 import clone.tetris.input.GameInputManager;
 import clone.tetris.playables.Tetramino;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -18,7 +20,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import clone.tetris.cup.Cup;
 
-public class GameSession extends ApplicationAdapter {
+public class GameSession implements Screen {
 	private Tetramino tetramino;
 	private Tetramino.Preview heldTetramino;
 	private Tetramino.Preview previewTetramino;
@@ -44,12 +46,11 @@ public class GameSession extends ApplicationAdapter {
 	private int frameCounter;
 	private int movingFrameCounter;
 
-	private OrthographicCamera camera;
-	private SpriteBatch batch;
-	private ShapeRenderer shapeRenderer;
+	private final OrthographicCamera camera;
+	private final SpriteBatch batch;
+	private final ShapeRenderer shapeRenderer;
 
-	@Override
-	public void create () {
+	public GameSession () {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Config.ScreenWidth, Config.ScreenHeight);
 		batch = new SpriteBatch();
@@ -246,7 +247,12 @@ public class GameSession extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render () {
+	public void show() {
+
+	}
+
+	@Override
+	public void render(float delta) {
 		if(currentState == GameState.Running) {
 			updateTetramino();
 			updateCup();
@@ -284,7 +290,27 @@ public class GameSession extends ApplicationAdapter {
 		UIConfig.GameFont.draw(batch, "TETRIS RATE: " + (int)(Stats.getTetrisRate() * 100) + "%", Config.TetrisRateX, Config.TetrisRateY);
 		batch.end();
 	}
-	
+
+	@Override
+	public void resize(int width, int height) {
+
+	}
+
+	@Override
+	public void pause() {
+
+	}
+
+	@Override
+	public void resume() {
+
+	}
+
+	@Override
+	public void hide() {
+
+	}
+
 	@Override
 	public void dispose () {
 

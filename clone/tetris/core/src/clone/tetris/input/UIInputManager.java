@@ -33,7 +33,6 @@ public class UIInputManager implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        screenX = (int) Config.ScreenWidth - screenX;
         screenY = (int)Config.ScreenHeight - screenY;
         tetrisClone.mouseReleased(screenX, screenY);
         return true;
@@ -51,7 +50,6 @@ public class UIInputManager implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        screenX = (int) Config.ScreenWidth - screenX;
         screenY = (int)Config.ScreenHeight - screenY;
         tetrisClone.mouseMoved(screenX, screenY);
         return true;

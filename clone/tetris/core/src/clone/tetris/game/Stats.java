@@ -1,6 +1,7 @@
 package clone.tetris.game;
 
 import clone.tetris.game.config.Config;
+import clone.tetris.game.config.GameConfig;
 
 public class Stats {
     private static final int[] lineBonuses = {0, 100, 300, 500, 800};
@@ -55,7 +56,7 @@ public class Stats {
         lineCount = 0;
         possibleLineCount = 0;
         tetrisCount = 0;
-        difficulty = Config.StartDifficulty;
+        difficulty = GameConfig.StartDifficulty;
     }
 
     public static void addLineBonus(LineRemoveType type) {
@@ -81,7 +82,7 @@ public class Stats {
     }
 
     private static void refreshDifficulty() {
-        int linesToChangeDifficulty = difficulty * 10 - Config.StartDifficulty * 10 + 10;
+        int linesToChangeDifficulty = difficulty * 10 - GameConfig.StartDifficulty * 10 + 10;
         if (lineCount >= linesToChangeDifficulty) {
             switch (Config.CurrentLayout) {
                 case NES:

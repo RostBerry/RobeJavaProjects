@@ -5,6 +5,7 @@ import clone.tetris.game.config.Config;
 import clone.tetris.game.config.MenuConfig;
 import clone.tetris.game.config.UIConfig;
 import clone.tetris.ui.Button;
+import clone.tetris.ui.TextButton;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -19,7 +20,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -41,7 +41,10 @@ public class MainMenu implements Screen {
         camera.setToOrtho(false, Config.ScreenWidth, Config.ScreenHeight);
 
         allButtons = new ArrayList<>();
-        allButtons.add(new Button(MenuConfig.PlayButtonX, MenuConfig.PlayButtonY, MenuConfig.PlayButtonWidth, MenuConfig.PlayButtonHeight, "PLAY"));
+        // Play button
+        allButtons.add(new TextButton(0, MenuConfig.PlayButtonX, MenuConfig.PlayButtonY,
+                MenuConfig.PlayButtonWidth, MenuConfig.PlayButtonHeight,
+                "PLAY"));
 
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setProjectionMatrix(camera.combined);
@@ -52,8 +55,8 @@ public class MainMenu implements Screen {
     public void clickOnButton(int x, int y) {
         for (Button button: allButtons) {
             if (TetrisClone.isColliding(button, x, y)) {
-                switch (button.text) {
-                    case "PLAY":
+                switch (button.id) {
+                    case 0: // Play
                         isPlayPressed = true;
                         return;
                 }

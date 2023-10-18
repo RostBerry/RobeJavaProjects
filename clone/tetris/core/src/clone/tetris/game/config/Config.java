@@ -11,7 +11,6 @@ public class Config {
         Tetris99
     }
     public static GameFormat CurrentLayout;
-    public static int StartDifficulty;
     public static float CupHeight;
     public static float CellSize;
     public static float CupWidth;
@@ -20,7 +19,8 @@ public class Config {
     public static float CupTopY;
 
     public static int GameFontSize;
-    public static int MenuFontSize;
+    public static int MenuMainFontSize;
+    public static int MenuHeaderFontSize;
 
     public static float LinesCountX;
     public static float LinesCountY;
@@ -55,15 +55,15 @@ public class Config {
     public static float StatsX;
     public static float StatsY;
 
-    public static void Update(float screenWidth, float screenHeight, GameFormat gameFormat, int startDifficulty, int fps) {
+    public static void Update(float screenWidth, float screenHeight, GameFormat gameFormat, int fps) {
         MultiplierFactor = 1f;
         FPS = fps;
         CurrentLayout = gameFormat;
         ScreenWidth = screenWidth * MultiplierFactor;
         ScreenHeight = screenHeight * MultiplierFactor;
-        StartDifficulty = startDifficulty;
         GameFontSize = (int) (ScreenHeight * 0.03f);
-        MenuFontSize = GameFontSize * 2;
+        MenuMainFontSize = GameFontSize * 2;
+        MenuHeaderFontSize = GameFontSize;
         CupHeight = ScreenHeight * 0.6f;
         CellSize = CupHeight / 20;
         CupWidth = CellSize * 10;

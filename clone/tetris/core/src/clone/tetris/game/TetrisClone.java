@@ -4,9 +4,11 @@ import clone.tetris.game.config.Config;
 import clone.tetris.game.config.UIConfig;
 import clone.tetris.input.GameInputManager;
 import clone.tetris.input.UIInputManager;
+import clone.tetris.scenes.GameSession;
 import clone.tetris.scenes.GameStart;
 import clone.tetris.scenes.MainMenu;
 import clone.tetris.ui.Button;
+import clone.tetris.ui.Switcher;
 import com.badlogic.gdx.*;
 
 import java.util.List;
@@ -14,12 +16,22 @@ import java.util.List;
 public class TetrisClone extends Game {
     private MainMenu menu;
     private GameStart gameStart;
+    private GameSession game;
     private InputMultiplexer inputMultiplexer;
     private UIInputManager uiInputManager;
     private GameInputManager gameInputManager;
 
     public static boolean isColliding(Button button, int x, int y) {
         return x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height;
+    }
+
+    public static boolean isColliding(Switcher switcher, int x, int y) {
+        for (Button button: switcher.allSwitchButtons) {
+            if (isColliding(button, x, y)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void highlightButtons(int x, int y, List<Button> allButtons) {
@@ -29,6 +41,12 @@ public class TetrisClone extends Game {
             } else {
                 button.strokeColor = UIConfig.ButtonStrokeColor;
             }
+        }
+    }
+
+    public static void highlightSwitchers(int x, int y, List<Switcher> allSwitchers) {
+        for (Switcher switcher: allSwitchers) {
+            highlightButtons(x, y, switcher.allSwitchButtons);
         }
     }
 
@@ -52,12 +70,15 @@ public class TetrisClone extends Game {
             highlightButtons(x, y, menu.allButtons);
         } else if (getScreen() == gameStart) {
             highlightButtons(x, y, gameStart.allButtons);
+            highlightSwitchers(x, y, gameStart.allSwitchers);
         }
     }
 
     public void mouseReleased(int x, int y) {
         if (getScreen() == menu) {
             menu.clickOnButton(x, y);
+        } else if (getScreen() == gameStart) {
+            gameStart.clickOnButton(x, y);
         }
         updateEvents();
     }
@@ -66,6 +87,11 @@ public class TetrisClone extends Game {
         if (getScreen() == menu) {
             if (menu.isPlayPressed) {
                 setScreen(gameStart);
+            }
+        } else if (getScreen() == gameStart) {
+            if (gameStart.isPlayPressed) {
+                game = new GameSession();
+                setScreen(game);
             }
         }
     }

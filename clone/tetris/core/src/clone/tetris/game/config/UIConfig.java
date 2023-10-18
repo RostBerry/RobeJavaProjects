@@ -12,7 +12,8 @@ public class UIConfig {
     public static Color ButtonSelectionColor = Color.BLUE;
 
     public static BitmapFont GameFont;
-    public static BitmapFont MenuFont;
+    public static BitmapFont MenuMainFont;
+    public static BitmapFont MenuHeaderFont;
 
     public static void update() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart.ttf"));
@@ -21,8 +22,10 @@ public class UIConfig {
         parameter.color = Color.WHITE;
         parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:%.";
         GameFont = generator.generateFont(parameter);
-        parameter.size = Config.MenuFontSize;
-        MenuFont = generator.generateFont(parameter);
+        parameter.size = Config.MenuMainFontSize;
+        MenuMainFont = generator.generateFont(parameter);
+        parameter.size = Config.MenuHeaderFontSize;
+        MenuHeaderFont = generator.generateFont(parameter);
         generator.dispose();
     }
 }
