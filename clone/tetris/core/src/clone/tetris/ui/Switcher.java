@@ -1,5 +1,6 @@
 package clone.tetris.ui;
 
+import clone.tetris.game.config.Config;
 import clone.tetris.game.config.UIConfig;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,8 +17,7 @@ public class Switcher {
     public final float width;
     public final float height;
 
-    private static final float gapWidth = 10;
-    private final float textWidth;
+    private static final float gapWidth = Config.MenuHeaderFontSize;
     private final float buttonSize;
 
     private final List<String> allOptions;
@@ -25,33 +25,40 @@ public class Switcher {
 
     private int currentOptionId;
 
-    public Switcher(int id, float x, float y, List<String> options) {
+    public Switcher(int id, float x, float y, List<String> options, boolean isWidthFixed) {
         this.id = id;
         this.x = x;
         this.y = y;
         currentOptionId = 0;
         allOptions = options;
-        GlyphLayout layout = new GlyphLayout();
-        float maxTextWidth = 0;
-        float maxTextHeight = 0;
-        for (String option: allOptions) {
-            layout.setText(UIConfig.MenuHeaderFont, option);
-            if (layout.width > maxTextWidth) {
-                maxTextWidth = layout.width;
+
+        float textWidth;
+
+        buttonSize = UIConfig.SwitcherButtonSize;
+
+        float rightButtonX;
+        if (isWidthFixed) {
+            width = UIConfig.SwitcherWidth;
+            rightButtonX = x + width - buttonSize;
+        } else {
+            float maxTextWidth = 0;
+            GlyphLayout layout = new GlyphLayout();
+            for (String option: allOptions) {
+                layout.setText(UIConfig.MenuHeaderFont, option);
+                if (layout.width > maxTextWidth) {
+                    maxTextWidth = layout.width;
+                }
             }
-            if (layout.height > maxTextHeight) {
-                maxTextHeight = layout.height;
-            }
+            textWidth = maxTextWidth;
+            rightButtonX = x + buttonSize + textWidth + gapWidth * 2;
+            width = buttonSize * 2 + textWidth + gapWidth * 2;
         }
-        textWidth = maxTextWidth;
-        buttonSize = maxTextHeight * 1.5f;
 
         allSwitchButtons = new ArrayList<>();
 
-        allSwitchButtons.add(new SwitchButton(0, false, x, y, buttonSize, buttonSize));
-        allSwitchButtons.add(new SwitchButton(1, true, x + buttonSize + textWidth + gapWidth * 2, y, buttonSize, buttonSize));
+        allSwitchButtons.add(new SwitchButton(0, false, x, y, buttonSize));
+        allSwitchButtons.add(new SwitchButton(1, true, rightButtonX, y, buttonSize));
 
-        width = buttonSize * 2 + textWidth + gapWidth * 2;
         height = buttonSize;
     }
 
@@ -65,6 +72,14 @@ public class Switcher {
         if (currentOptionId > 0) {
             currentOptionId--;
         }
+    }
+
+    public int getOptionId() {
+        return currentOptionId;
+    }
+
+    public String getOption() {
+        return allOptions.get(currentOptionId);
     }
 
     public void draw(ShapeRenderer shapeRenderer, SpriteBatch batch) {

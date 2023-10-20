@@ -31,39 +31,24 @@ public class BlockTexture {
             for (int y = 0; y < size; y++) {
                 pixmap.setColor(mainColor);
                 if (isGhost) {
-                    if (x == 0 || y == 0) {
+                    if (x == 0 || y == 0 || x == size - 1 || y == size - 1) {
                         pixmap.drawPixel(x, y);
                     }
                 } else {
                     pixmap.drawPixel(x, y);
-                }
-                if (x == 0 && y == 0 || x == 1 && y == 1 || x == 2 && y == 1 || x == 1 && y == 2) {
-                    pixmap.setColor(new Color(1, 1, 1, mainColor.a));
-                    pixmap.drawPixel(x, y);
-                }
-                if (x == size - 1 || y == size - 1) {
-                    pixmap.setColor(Color.BLACK);
-                    pixmap.drawPixel(x, y);
-                }
-            }
-        }
-
-        Pixmap finalPixmap = isGhost? new Pixmap(size, size, Pixmap.Format.RGBA8888): pixmap;
-        if (isGhost) {
-            for (int x = 0; x < size; x++) {
-                for (int y = 0; y < size; y++) {
-                    int pixel = pixmap.getPixel(x, y);
-                    Color colorToDraw = new Color(pixel);
-                    if (colorToDraw.a != 0) {
-                        colorToDraw.a = 1f;
+                    if (x == 0 && y == 0 || x == 1 && y == 1 || x == 2 && y == 1 || x == 1 && y == 2) {
+                        pixmap.setColor(new Color(1, 1, 1, mainColor.a));
+                        pixmap.drawPixel(x, y);
                     }
-                    finalPixmap.setColor(colorToDraw);
-                    finalPixmap.drawPixel(x, y);
+                    if (x == size - 1 || y == size - 1) {
+                        pixmap.setColor(Color.BLACK);
+                        pixmap.drawPixel(x, y);
+                    }
                 }
             }
         }
 
-        Texture texture = new Texture(finalPixmap);
+        Texture texture = new Texture(pixmap);
         pixmap.dispose();
         return texture;
     }

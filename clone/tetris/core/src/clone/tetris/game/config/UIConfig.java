@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UIConfig {
     public static Color ButtonBackgroundColor = Color.LIGHT_GRAY;
     public static Color ButtonStrokeColor = Color.BLUE;
@@ -14,6 +17,11 @@ public class UIConfig {
     public static BitmapFont GameFont;
     public static BitmapFont MenuMainFont;
     public static BitmapFont MenuHeaderFont;
+
+    public static float SwitcherButtonSize;
+    public static float SwitcherWidth;
+
+    public static List<String> onOff;
 
     public static void update() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart.ttf"));
@@ -27,5 +35,22 @@ public class UIConfig {
         parameter.size = Config.MenuHeaderFontSize;
         MenuHeaderFont = generator.generateFont(parameter);
         generator.dispose();
+
+        SwitcherButtonSize = Config.MenuHeaderFontSize * 2f;
+        SwitcherWidth = Config.ScreenWidth * 0.3f;
+
+        onOff = new ArrayList<>();
+        onOff.add("ON");
+        onOff.add("OFF");
+
+        GameStartConfig.update();
+        MenuConfig.update();
+        OptionsConfig.update();
+    }
+
+    public static void dispose() {
+        GameFont.dispose();
+        MenuMainFont.dispose();
+        MenuHeaderFont.dispose();
     }
 }

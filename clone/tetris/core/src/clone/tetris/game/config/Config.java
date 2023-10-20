@@ -6,11 +6,11 @@ public class Config {
 
     public static float ScreenWidth;
     public static float ScreenHeight;
-    public enum GameFormat {
+    public enum SpeedCurveFormat {
         NES,
-        Tetris99
+        Modern
     }
-    public static GameFormat CurrentLayout;
+    public static SpeedCurveFormat CurrentSpeedCurveFormat;
     public static float CupHeight;
     public static float CellSize;
     public static float CupWidth;
@@ -55,10 +55,10 @@ public class Config {
     public static float StatsX;
     public static float StatsY;
 
-    public static void Update(float screenWidth, float screenHeight, GameFormat gameFormat, int fps) {
+    public static void Update(float screenWidth, float screenHeight, SpeedCurveFormat speedCurveFormat, int fps) {
         MultiplierFactor = 1f;
         FPS = fps;
-        CurrentLayout = gameFormat;
+        CurrentSpeedCurveFormat = speedCurveFormat;
         ScreenWidth = screenWidth * MultiplierFactor;
         ScreenHeight = screenHeight * MultiplierFactor;
         GameFontSize = (int) (ScreenHeight * 0.03f);
@@ -103,8 +103,5 @@ public class Config {
 
         StatsTextX = StatsX;
         StatsTextY = StatsY + CellSize * 3 * 4 + CellSize * 2.5f;
-
-        MenuConfig.update();
-        GameStartConfig.update();
     }
 }

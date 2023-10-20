@@ -8,10 +8,11 @@ import clone.tetris.game.config.GameConfig;
 import clone.tetris.game.config.UIConfig;
 import clone.tetris.input.GameInputManager;
 import clone.tetris.playables.Tetramino;
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -45,6 +46,18 @@ public class GameSession implements Screen {
 
 	private int frameCounter;
 	private int movingFrameCounter;
+
+	private final Sound rotatingSound;
+	private final Sound fallingSound;
+	private final Sound moveSound;
+	private final Sound lineRemovingSound;
+	private final Sound lockingSound;
+	private final Sound wallTouchingSound;
+	private final Sound gameOverSound;
+	private final float soundVolume;
+
+	private final Music music;
+	private final float musicVolume;
 
 	private final OrthographicCamera camera;
 	private final SpriteBatch batch;
@@ -80,6 +93,30 @@ public class GameSession implements Screen {
 		Gdx.input.setInputProcessor(multiplexer);
 
 		Controllers.addListener(gameInputManager);
+
+		rotatingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/rotate.mp3"));
+		fallingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/falling.mp3"));
+		moveSound = Gdx.audio.newSound(Gdx.files.internal("sounds/move.mp3"));
+		lineRemovingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/line.mp3"));
+		lockingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/locking.mp3"));
+		wallTouchingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/touching_wall.mp3"));
+		gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sounds/game_over.mp3"));
+
+		soundVolume = 0.4f;
+
+		music = Gdx.audio.newMusic(Gdx.files.internal("music/tetris_theme.mp3"));
+
+		musicVolume = 0.5f;
+
+		music.play();
+		music.setLooping(true);
+		music.setVolume(musicVolume);
+	}
+
+	private void gameOver() {
+		music.stop();
+		currentState = GameState.TerminatedByOverflow;
+		gameOverSound.play(soundVolume);
 	}
 
 
@@ -102,7 +139,7 @@ public class GameSession implements Screen {
 
 	private void specifySpawnPos() {
 		if (tetramino.isObstructed()) {
-			currentState = GameState.TerminatedByOverflow;
+			gameOver();
 			return;
 		}
 		if (tetramino.canBePlaced) {
@@ -176,11 +213,12 @@ public class GameSession implements Screen {
 			}
 			canBeMovedDown = false;
 		}
-		int interval = Config.CurrentLayout == Config.GameFormat.NES? Stats.NESFallingIntervals[Stats.getActualDifficulty() - 1] - 1 : Stats.calculateGuidelineDifficulty();
+		int interval = Config.CurrentSpeedCurveFormat == Config.SpeedCurveFormat.NES? Stats.NESFallingIntervals[Stats.getActualDifficulty() - 1] - 1 : Stats.calculateGuidelineDifficulty();
 		if (isSoftDropHold) {
 			interval /= (int) Math.log(Math.pow(Stats.softDropIncrease, Stats.difficulty)) + Stats.softDropIncrease;
 		}
 		if (canBeMovedDown && frameCounter >= interval) {
+			fallingSound.play(soundVolume);
 			tetramino.moveDown();
 			if (isSoftDropHold) {
 				Stats.addSoftDropBonus();
@@ -192,11 +230,14 @@ public class GameSession implements Screen {
 	private void updateCup() {
 		if(tetramino.isPlaced) {
 			if (tetramino.isOutsideVisibleCup()) {
-				currentState = GameState.TerminatedByOverflow;
+				gameOver();
 				return;
 			}
 			Stack.updateLines();
 			Stats.addLineBonus(Stack.removeType);
+			if (Stack.removeType != Stats.LineRemoveType.None) {
+				lineRemovingSound.play(soundVolume);
+			}
 			createTetramino();
 			createGhostTetramino();
 			isHeld = false;
@@ -207,6 +248,7 @@ public class GameSession implements Screen {
 
 	public void moveTetramino(boolean side) {
 		if (currentState == GameState.Running) {
+			moveSound.play(soundVolume);
 			tetramino.moveToSide(side);
 			createGhostTetramino();
 			resetLockPause();
@@ -215,6 +257,7 @@ public class GameSession implements Screen {
 
 	public void rotateTetramino(boolean clockwise) {
 		if (currentState == GameState.Running) {
+			rotatingSound.play(soundVolume);
 			tetramino.Rotate(clockwise);
 			createGhostTetramino();
 			resetLockPause();
@@ -277,7 +320,9 @@ public class GameSession implements Screen {
 			heldTetramino.draw(batch, Config.HoldX, Config.HoldY);
 		}
 
-		TetraminoStatsManager.drawPreviews(batch);
+		if (GameConfig.DoShowTetraminoStats) {
+			TetraminoStatsManager.drawPreviews(batch);
+		}
 
 		batch.begin();
 		UIConfig.GameFont.draw(batch, "LINES: " + Stats.lineCount, Config.LinesCountX, Config.LinesCountY);
@@ -285,8 +330,10 @@ public class GameSession implements Screen {
 		UIConfig.GameFont.draw(batch, "LEVEL: " + Stats.difficulty, Config.DifficultyX, Config.DifficultyY);
 		UIConfig.GameFont.draw(batch, "NEXT:", Config.PreviewTextX, Config.PreviewTextY);
 		UIConfig.GameFont.draw(batch, "HOLD:", Config.HoldTextX, Config.HoldTextY);
-		UIConfig.GameFont.draw(batch, "STATISTICS:", Config.StatsTextX, Config.StatsTextY);
-		TetraminoStatsManager.drawTexts(batch, UIConfig.GameFont);
+		if (GameConfig.DoShowTetraminoStats) {
+			UIConfig.GameFont.draw(batch, "STATISTICS:", Config.StatsTextX, Config.StatsTextY);
+			TetraminoStatsManager.drawTexts(batch, UIConfig.GameFont);
+		}
 		UIConfig.GameFont.draw(batch, "TETRIS RATE: " + (int)(Stats.getTetrisRate() * 100) + "%", Config.TetrisRateX, Config.TetrisRateY);
 		batch.end();
 	}
@@ -313,6 +360,15 @@ public class GameSession implements Screen {
 
 	@Override
 	public void dispose () {
+		rotatingSound.dispose();
+		fallingSound.dispose();
+		moveSound.dispose();
+		lineRemovingSound.dispose();
+		lockingSound.dispose();
+		wallTouchingSound.dispose();
+		gameOverSound.dispose();
+
+		music.dispose();
 
 		batch.dispose();
 		shapeRenderer.dispose();

@@ -74,7 +74,7 @@ public class Stats {
     }
 
     public static int getActualDifficulty() {
-        return Math.min(difficulty, Config.CurrentLayout == Config.GameFormat.NES ? 30: 15);
+        return Math.min(difficulty, Config.CurrentSpeedCurveFormat == Config.SpeedCurveFormat.NES ? 30: 15);
     }
 
     public static int calculateGuidelineDifficulty() {
@@ -84,11 +84,11 @@ public class Stats {
     private static void refreshDifficulty() {
         int linesToChangeDifficulty = difficulty * 10 - GameConfig.StartDifficulty * 10 + 10;
         if (lineCount >= linesToChangeDifficulty) {
-            switch (Config.CurrentLayout) {
+            switch (Config.CurrentSpeedCurveFormat) {
                 case NES:
                     difficulty++;
                     break;
-                case Tetris99:
+                case Modern:
                     difficulty = Math.min(15, difficulty + 1);
             }
         }

@@ -24,7 +24,7 @@ public class GameStart implements Screen {
     public List<Button> allButtons;
     public List<Switcher> allSwitchers;
 
-    public boolean isPlayPressed;
+    public int eventId;
 
     private GameConfig.GameMode chosenGameMode;
     private int startDifficulty;
@@ -51,9 +51,11 @@ public class GameStart implements Screen {
 
         allSwitchers = new ArrayList<>();
         // Game Mode Switcher
-        allSwitchers.add(new Switcher(0, GameStartConfig.GameModeSwitcherX, GameStartConfig.GameModeSwitcherY, GameStartConfig.AllGameModes));
-
-        isPlayPressed = false;
+        allSwitchers.add(new Switcher(0, GameStartConfig.GameModeSwitcherX, GameStartConfig.GameModeSwitcherY,
+                GameStartConfig.AllGameModes, true));
+        // Start Difficulty Switcher
+        allSwitchers.add(new Switcher(1, GameStartConfig.StartDifficultySwitcherX, GameStartConfig.StartDifficultySwitcherY,
+                GameStartConfig.AllStartDifficulties, true));
 
         chosenGameMode = GameConfig.GameMode.Marathon;
         startDifficulty = 1;
@@ -64,21 +66,36 @@ public class GameStart implements Screen {
             if (TetrisClone.isColliding(button, x, y)) {
                 switch (button.id) {
                     case 0: // Start
-                        isPlayPressed = true;
-                        GameConfig.update(startDifficulty, chosenGameMode);
+                        eventId = 1;
+                        GameConfig.StartDifficulty = startDifficulty;
+                        GameConfig.CurrentGameMode = chosenGameMode;
                         return;
                 }
             }
         }
         for (Switcher switcher: allSwitchers) {
-            // Left
+            boolean isClicked = false;
+            // Left Button
             if (TetrisClone.isColliding(switcher.allSwitchButtons.get(0), x, y)) {
                 switcher.changeOption(false);
-                return;
+                isClicked = true;
             }
-            // Right
+            // Right Button
             if (TetrisClone.isColliding(switcher.allSwitchButtons.get(1), x, y)) {
                 switcher.changeOption(true);
+                isClicked = true;
+            }
+            if (isClicked) {
+                switch(switcher.id) {
+                    //Game Mode
+                    case 0:
+                        chosenGameMode = GameConfig.GameMode.values()[switcher.getOptionId()];
+                        break;
+                    // Start Difficulty
+                    case 1:
+                        startDifficulty = Integer.parseInt(switcher.getOption());
+                        break;
+                }
                 return;
             }
         }
@@ -86,7 +103,7 @@ public class GameStart implements Screen {
 
     @Override
     public void show() {
-        isPlayPressed = false;
+        eventId = 0;
         for (Button button: allButtons) {
             button.strokeColor = UIConfig.ButtonStrokeColor;
         }
@@ -94,7 +111,7 @@ public class GameStart implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0f, 1);
+        Gdx.gl.glClearColor(0, 0, 0.2f, 1);
         Gdx.gl.glClear( GL30.GL_COLOR_BUFFER_BIT  );
         Gdx.gl.glEnable(GL30.GL_BLEND);
         Gdx.gl.glBlendFunc(GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA);
@@ -105,6 +122,11 @@ public class GameStart implements Screen {
         for (Switcher switcher: allSwitchers) {
             switcher.draw(shapeRenderer, batch);
         }
+
+        batch.begin();
+        UIConfig.MenuHeaderFont.draw(batch, "GAME MODE:", GameStartConfig.GameModeTextX, GameStartConfig.GameModeTextY);
+        UIConfig.MenuHeaderFont.draw(batch, "DIFFICULTY:", GameStartConfig.StartDifficultyTextX, GameStartConfig.StartDifficultyTextY);
+        batch.end();
     }
 
     @Override

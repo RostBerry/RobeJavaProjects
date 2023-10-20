@@ -9,8 +9,5 @@ public class GameConfig {
     public static int StartDifficulty;
     public static GameMode CurrentGameMode;
 
-    public static void update(int difficulty, GameMode gameMode) {
-        StartDifficulty = difficulty;
-        CurrentGameMode = gameMode;
-    }
+    public static boolean DoShowTetraminoStats = false;
 }

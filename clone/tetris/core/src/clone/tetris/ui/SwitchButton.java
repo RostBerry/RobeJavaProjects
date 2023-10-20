@@ -1,33 +1,31 @@
 package clone.tetris.ui;
 
+import clone.tetris.appearance.SwitchButtonTexture;
+import clone.tetris.game.config.UIConfig;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class SwitchButton extends Button {
-    private final boolean side;
+    private final Sprite spriteDefault;
+    private final Sprite spriteSelected;
 
-    public SwitchButton(int id, boolean side, float x, float y, float width, float height) {
-        super(id, x, y, width, height);
-        this.side = side;
+    public SwitchButton(int id, boolean side, float x, float y, float size) {
+        super(id, x, y, size, size);
+        spriteDefault = new Sprite(side? SwitchButtonTexture.switchButtonRight[0]: SwitchButtonTexture.switchButtonLeft[0]);
+        spriteSelected = new Sprite(side? SwitchButtonTexture.switchButtonRight[1]: SwitchButtonTexture.switchButtonLeft[1]);
+        spriteDefault.setBounds(x, y, size, size);
+        spriteSelected.setBounds(x, y, size, size);
     }
 
     public void draw(ShapeRenderer shapeRenderer, SpriteBatch batch) {
         super.draw(shapeRenderer, batch);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (int i = 0; i < 8; i++) {
-            float xStart;
-            float xEnd;
-            if (side) {
-                xStart = x + width / 8 + i;
-                xEnd = x + width - width / 8 + i;
-            } else {
-                xEnd = x + width / 8 + i;
-                xStart = x + width - width / 8 + i;
-            }
-
-            shapeRenderer.line(xStart, y + height / 8, xEnd, y + height / 2);
-            shapeRenderer.line(xEnd, y + height / 2, xStart, y + height - height / 8);
+        batch.begin();
+        if (strokeColor == UIConfig.ButtonStrokeColor) {
+            spriteDefault.draw(batch);
+        } else {
+            spriteSelected.draw(batch);
         }
-        shapeRenderer.end();
+        batch.end();
     }
 }
